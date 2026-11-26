@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/han-lab/', // Замените на имя вашего репозитория
+  base: '/HAN-LAB-by-NOVA/', // Имя репозитория на GitHub
   devtools: {
     // Remove this `apply` property to enable devtools for build as well
     apply: 'serve',
@@ -24,17 +24,17 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: '/han-lab/icon-192.png',
+            src: '/HAN-LAB-by-NOVA/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/han-lab/icon-512.png',
+            src: '/HAN-LAB-by-NOVA/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: '/han-lab/icon-maskable.png',
+            src: '/HAN-LAB-by-NOVA/icon-maskable.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
