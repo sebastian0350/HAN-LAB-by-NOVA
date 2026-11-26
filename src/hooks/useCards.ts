@@ -85,6 +85,7 @@ export function useCards() {
   return {
     dueCards,
     currentCard,
+    currentCardIndex,
     hasMoreCards,
     progress,
     isLoading,

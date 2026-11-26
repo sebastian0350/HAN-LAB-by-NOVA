@@ -6,8 +6,12 @@ import { ru } from '../config/i18n';
 
 type AuthMode = 'login' | 'register';
 
-export const Auth: React.FC<{ onBack: () => void; onSuccess: () => void }> = ({ onBack, onSuccess }) => {
-  const [mode, setMode] = useState<AuthMode>('login');
+export const Auth: React.FC<{
+  onBack: () => void;
+  onSuccess: () => void;
+  initialMode?: AuthMode;
+}> = ({ onBack, onSuccess, initialMode = 'login' }) => {
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');

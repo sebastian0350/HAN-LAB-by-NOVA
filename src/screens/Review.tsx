@@ -3,10 +3,10 @@ import { ru } from '../config/i18n';
 import { useCards } from '../hooks/useCards';
 import { WordCard } from '../components/WordCard';
 import { db } from '../db/schema';
-import { Card } from '../db/schema';
+import type { Card } from '../db/schema';
 
 export const Review: React.FC = () => {
-  const { dueCards, currentCard, hasMoreCards, progress, isLoading, submitReview } = useCards();
+  const { dueCards, currentCard, hasMoreCards, progress, isLoading, submitReview, currentCardIndex } = useCards();
   const [currentWordData, setCurrentWordData] = useState<Card | null>(null);
 
   // Загружаем данные карточки

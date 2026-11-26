@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { db } from '../db/schema';
-import type { CardState, Review, Settings, Note } from '../db/schema';
 
 export function useSync(userId: string | null) {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error' | 'success'>('idle');

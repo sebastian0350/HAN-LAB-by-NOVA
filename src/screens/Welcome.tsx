@@ -25,7 +25,7 @@ export const Welcome: React.FC<{ onStart: (mode: 'guest' | 'authenticated') => v
   };
 
   if (mode === 'auth') {
-    return <Auth onBack={handleBack} onSuccess={handleAuthSuccess} />;
+    return <Auth onBack={handleBack} onSuccess={handleAuthSuccess} initialMode={authType} />;
   }
 
   return (

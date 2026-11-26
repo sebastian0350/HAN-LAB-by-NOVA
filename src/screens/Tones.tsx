@@ -3,7 +3,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Mascot } from '../components/Mascot';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
-import { detectTone, computeF0, ToneAnalysisResult } from '../core/toneDetection';
+import { detectTone, computeF0, type ToneAnalysisResult } from '../core/toneDetection';
 import { ru } from '../config/i18n';
 
 const TONE_EXAMPLES = [
