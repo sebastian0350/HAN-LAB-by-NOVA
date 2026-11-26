@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { db, Card, CardState } from '../db/schema';
-import { calculateNextReview, ReviewRating, getDueCards } from '../core/fsrs';
+import { db } from '../db/schema';
+import type { Card, CardState } from '../db/schema';
+import { calculateNextReview, type ReviewRating } from '../core/fsrs';
 
 export function useCards() {
   const [dueCards, setDueCards] = useState<CardState[]>([]);

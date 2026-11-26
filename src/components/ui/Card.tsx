@@ -4,9 +4,10 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className = '', onClick }) => {
+export const Card: React.FC<CardProps> = ({ children, className = '', onClick, style }) => {
   return (
     <div
       className={className}
@@ -17,6 +18,7 @@ export const Card: React.FC<CardProps> = ({ children, className = '', onClick })
         padding: 'var(--space-lg)',
         cursor: onClick ? 'pointer' : 'default',
         transition: 'all var(--transition-fast)',
+        ...style,
       }}
       onClick={onClick}
     >

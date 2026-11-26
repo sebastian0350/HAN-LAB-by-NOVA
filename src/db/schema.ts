@@ -1,6 +1,6 @@
 // Схема IndexedDB с Dexie (local-first)
 
-import Dexie, { Table } from 'dexie';
+import Dexie, { type Table } from 'dexie';
 
 export interface Card {
   id: string;
