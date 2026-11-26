@@ -1,0 +1,24 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- Тело панды (слушает - лапа у уха) -->
+  <ellipse cx="120" cy="160" rx="50" ry="60" fill="#1E1E1C"/>
+  <!-- Голова -->
+  <circle cx="120" cy="90" r="45" fill="#1E1E1C"/>
+  <!-- Уши -->
+  <circle cx="85" cy="55" r="18" fill="#1E1E1C"/>
+  <circle cx="155" cy="55" r="18" fill="#1E1E1C"/>
+  <!-- Глаза (белые пятна) -->
+  <ellipse cx="100" cy="85" rx="15" ry="12" fill="#EDE8DC"/>
+  <ellipse cx="140" cy="85" rx="15" ry="12" fill="#EDE8DC"/>
+  <!-- Зрачки -->
+  <circle cx="100" cy="85" r="6" fill="#1E1E1C"/>
+  <circle cx="140" cy="85" r="6" fill="#1E1E1C"/>
+  <!-- Нос -->
+  <ellipse cx="120" cy="100" rx="8" ry="5" fill="#1E1E1C"/>
+  <!-- Рот -->
+  <line x1="115" y1="112" x2="125" y2="112" stroke="#EDE8DC" stroke-width="2"/>
+  <!-- Наушники -->
+  <ellipse cx="75" cy="90" rx="12" ry="15" fill="#5C5A54"/>
+  <ellipse cx="165" cy="90" rx="12" ry="15" fill="#5C5A54"/>
+  <!-- Лапа у уха -->
+  <ellipse cx="70" cy="75" rx="15" ry="18" fill="#1E1E1C"/>
+</svg>

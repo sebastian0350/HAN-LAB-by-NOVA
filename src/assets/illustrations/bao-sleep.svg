@@ -1,0 +1,20 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- Тело панды (спит) -->
+  <ellipse cx="120" cy="165" rx="50" ry="55" fill="#1E1E1C"/>
+  <!-- Голова (наклонена) -->
+  <circle cx="120" cy="95" r="45" fill="#1E1E1C" transform="rotate(15 120 95)"/>
+  <!-- Уши -->
+  <circle cx="85" cy="60" r="18" fill="#1E1E1C"/>
+  <circle cx="155" cy="60" r="18" fill="#1E1E1C"/>
+  <!-- Глаза закрыты (дуги) -->
+  <path d="M 92 88 Q 102 83 112 88" stroke="#EDE8DC" stroke-width="3" fill="none" transform="rotate(15 120 95)"/>
+  <path d="M 128 88 Q 138 83 148 88" stroke="#EDE8DC" stroke-width="3" fill="none" transform="rotate(15 120 95)"/>
+  <!-- Нос -->
+  <ellipse cx="120" cy="105" rx="8" ry="5" fill="#1E1E1C" transform="rotate(15 120 95)"/>
+  <!-- Рот (спокойный) -->
+  <line x1="115" y1="117" x2="125" y2="117" stroke="#EDE8DC" stroke-width="2" transform="rotate(15 120 95)"/>
+  <!-- Zzz (сон) -->
+  <text x="170" y="50" font-family="sans-serif" font-size="16" fill="#5C5A54">z</text>
+  <text x="180" y="35" font-family="sans-serif" font-size="12" fill="#5C5A54">z</text>
+  <text x="188" y="22" font-family="sans-serif" font-size="10" fill="#5C5A54">z</text>
+</svg>
