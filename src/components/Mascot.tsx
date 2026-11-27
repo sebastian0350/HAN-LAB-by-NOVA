@@ -1,4 +1,9 @@
 import React from 'react';
+import hello from '../assets/illustrations/bao-hello.svg';
+import think from '../assets/illustrations/bao-think.svg';
+import listen from '../assets/illustrations/bao-listen.svg';
+import happy from '../assets/illustrations/bao-happy.svg';
+import sleep from '../assets/illustrations/bao-sleep.svg';
 
 type MascotState = 'hello' | 'think' | 'listen' | 'happy' | 'sleep';
 
@@ -8,19 +13,19 @@ interface MascotProps {
   className?: string;
 }
 
-export const Mascot: React.FC<MascotProps> = ({ state, size = 120, className = '' }) => {
-  const illustrations: Record<MascotState, string> = {
-    hello: '/src/assets/illustrations/bao-hello.svg',
-    think: '/src/assets/illustrations/bao-think.svg',
-    listen: '/src/assets/illustrations/bao-listen.svg',
-    happy: '/src/assets/illustrations/bao-happy.svg',
-    sleep: '/src/assets/illustrations/bao-sleep.svg',
-  };
+const illustrations: Record<MascotState, string> = {
+  hello,
+  think,
+  listen,
+  happy,
+  sleep,
+};
 
+export const Mascot: React.FC<MascotProps> = ({ state, size = 120, className = '' }) => {
   return (
     <img
       src={illustrations[state]}
-      alt={`Панда Бао - ${state}`}
+      alt=""
       width={size}
       height={size}
       className={className}

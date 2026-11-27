@@ -1,95 +1,149 @@
-/* CSS переменные для дизайн-системы Хань-Лаб */
-/* Токены цветов из части C.4 */
-
 :root {
-  /* Светлая тема */
-  --paper: #F6F1E7;
-  --paper-2: #EFE8DA;
-  --ink: #1E1E1C;
-  --ink-2: #5C5A54;
-  --line: #DDD3BF;
-  --bamboo: #4E7A5B;
-  --bamboo-dark: #2F5A41;
-  --seal: #B5342B;
-  --gold: #C9A24B;
+  /* ── Акварельная палитра ── */
+  --paper:    #faf5ec;
+  --paper-2:  #f4ede0;
+  --paper-3:  #eddfcc;
+  --paper-4:  #e5d1b8;
 
-  /* Цвета тонов */
-  --tone-1: #3E6F9E;
-  --tone-2: #4E7A5B;
-  --tone-3: #7B5EA7;
-  --tone-4: #B5342B;
-  --tone-neutral: #8A877F;
+  --ink:      #1a1710;
+  --ink-2:    #56514a;
+  --ink-3:    #8c8678;
+  --ink-4:    #b5afa5;
 
-  /* Размеры */
-  --radius-card: 16px;
-  --radius-pill: 999px;
-  --radius-small: 8px;
+  --line:     #d8cdb8;
+  --line-2:   #e8dece;
 
-  /* Отступы */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
+  /* Бамбук (зелёный) */
+  --bamboo:        #3d6b48;
+  --bamboo-dark:   #2a4d33;
+  --bamboo-mid:    #5a9168;
+  --bamboo-light:  #8abb96;
+  --bamboo-soft:   rgba(61, 107, 72, 0.10);
+  --bamboo-glow:   rgba(61, 107, 72, 0.18);
 
-  /* Шрифты */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-serif: 'Noto Serif SC', 'Noto Serif', serif;
-  --font-hanzi-sans: 'Noto Sans SC', sans-serif;
-  --font-hanzi-serif: 'Noto Serif SC', serif;
+  /* Печать (красный) */
+  --seal:      #b5281e;
+  --seal-mid:  #d44036;
+  --seal-soft: rgba(181, 40, 30, 0.10);
+  --seal-glow: rgba(181, 40, 30, 0.18);
 
-  /* Размеры текста */
-  --text-xs: 13px;
-  --text-sm: 14px;
-  --text-base: 16px;
-  --text-lg: 18px;
-  --text-xl: 20px;
-  --text-2xl: 24px;
-  --text-3xl: 28px;
-  --text-4xl: 36px;
+  /* Золото */
+  --gold:      #b8863a;
+  --gold-soft: rgba(184, 134, 58, 0.14);
+  --gold-glow: rgba(184, 134, 58, 0.24);
 
-  /* Размер иероглифа карточки */
-  --hanzi-size: 72px;
-  --hanzi-size-mobile: 56px;
+  /* Тоны */
+  --tone-1: #2f5f8a;   /* 1-й тон: синий — ровный */
+  --tone-2: #3d6b48;   /* 2-й тон: зелёный — восходящий */
+  --tone-3: #7a4e96;   /* 3-й тон: фиолетовый — падающий-восходящий */
+  --tone-4: #b5281e;   /* 4-й тон: красный — нисходящий */
+  --tone-0: #8c8678;   /* нейтральный */
 
-  /* Высота кнопки */
-  --button-height: 52px;
+  --tone-1-soft: rgba(47, 95, 138, 0.12);
+  --tone-2-soft: rgba(61, 107, 72, 0.12);
+  --tone-3-soft: rgba(122, 78, 150, 0.12);
+  --tone-4-soft: rgba(181, 40, 30, 0.12);
 
-  /* Тени */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  /* ── Радиусы ── */
+  --r-xs:   6px;
+  --r-sm:   10px;
+  --r-md:   16px;
+  --r-lg:   22px;
+  --r-xl:   32px;
+  --r-pill: 999px;
 
-  /* Переходы */
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
-  --transition-slow: 350ms ease;
+  /* ── Отступы ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* ── Типографика ── */
+  --font-ui:    'Noto Sans SC', system-ui, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Serif 4', Georgia, serif;
+
+  --text-xs:  11px;
+  --text-sm:  13px;
+  --text-base: 15px;
+  --text-md:  17px;
+  --text-lg:  19px;
+  --text-xl:  22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-hanzi-sm: 48px;
+  --text-hanzi:    72px;
+  --text-hanzi-lg: 96px;
+
+  /* ── Тени ── */
+  --shadow-xs: 0 1px 3px rgba(26,23,16,0.06);
+  --shadow-sm: 0 2px 8px rgba(26,23,16,0.08);
+  --shadow-md: 0 6px 24px rgba(26,23,16,0.10);
+  --shadow-lg: 0 16px 48px rgba(26,23,16,0.14);
+  --shadow-card: 0 2px 12px rgba(26,23,16,0.08), 0 0 0 1px rgba(210,195,170,0.5);
+
+  /* ── Переходы ── */
+  --t-fast:   120ms ease;
+  --t-normal: 220ms ease;
+  --t-slow:   380ms ease;
+
+  /* ── Layout ── */
+  --nav-h: 72px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* ── Тёмная тема: явный атрибут ── */
 [data-theme='dark'] {
-  /* Тёмная тема */
-  --paper: #161815;
-  --paper-2: #1E211D;
-  --ink: #EDE8DC;
-  --ink-2: #A9A599;
-  --line: #2E322C;
-  --bamboo: #7FB08B;
-  --bamboo-dark: #5E946C;
-  --seal: #D9574D;
-  --gold: #D8B866;
+  --paper:    #131210;
+  --paper-2:  #1b1915;
+  --paper-3:  #232019;
+  --paper-4:  #2d2a22;
+  --ink:      #f0eade;
+  --ink-2:    #b4ad9e;
+  --ink-3:    #7e7868;
+  --ink-4:    #524e44;
+  --line:     #343028;
+  --line-2:   #2a2720;
+  --bamboo:        #7ab888;
+  --bamboo-dark:   #5a9668;
+  --bamboo-mid:    #9acca8;
+  --bamboo-soft:   rgba(122, 184, 136, 0.12);
+  --bamboo-glow:   rgba(122, 184, 136, 0.20);
+  --seal:      #d84a40;
+  --seal-mid:  #e86058;
+  --seal-soft: rgba(216, 74, 64, 0.14);
+  --gold:      #d4a84a;
+  --gold-soft: rgba(212, 168, 74, 0.14);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(60,56,44,0.6);
 }
 
+/* ── Тёмная тема: системные настройки ── */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --paper: #161815;
-    --paper-2: #1E211D;
-    --ink: #EDE8DC;
-    --ink-2: #A9A599;
-    --line: #2E322C;
-    --bamboo: #7FB08B;
-    --bamboo-dark: #5E946C;
-    --seal: #D9574D;
-    --gold: #D8B866;
+    --paper:    #131210;
+    --paper-2:  #1b1915;
+    --paper-3:  #232019;
+    --paper-4:  #2d2a22;
+    --ink:      #f0eade;
+    --ink-2:    #b4ad9e;
+    --ink-3:    #7e7868;
+    --ink-4:    #524e44;
+    --line:     #343028;
+    --line-2:   #2a2720;
+    --bamboo:        #7ab888;
+    --bamboo-dark:   #5a9668;
+    --bamboo-mid:    #9acca8;
+    --bamboo-soft:   rgba(122, 184, 136, 0.12);
+    --bamboo-glow:   rgba(122, 184, 136, 0.20);
+    --seal:      #d84a40;
+    --seal-mid:  #e86058;
+    --seal-soft: rgba(216, 74, 64, 0.14);
+    --gold:      #d4a84a;
+    --gold-soft: rgba(212, 168, 74, 0.14);
+    --shadow-card: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(60,56,44,0.6);
   }
 }

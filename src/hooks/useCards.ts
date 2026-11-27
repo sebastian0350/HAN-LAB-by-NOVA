@@ -1,68 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { db } from '../db/schema';
-import type { Card, CardState } from '../db/schema';
 import { calculateNextReview, type ReviewRating } from '../core/fsrs';
+import { DICTIONARY, getWordsByHsk } from '../data/dictionary';
+import { speakHanzi } from '../lib/speech';
 
-export function useCards() {
-  const [dueCards, setDueCards] = useState<CardState[]>([]);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+const DEFAULT_SETTINGS = {
+  dailyGoal: 10,
+  newCardsPerDay: 5,
+  currentHsk: 1 as const,
+  autoSpeak: true,
+};
 
-  // Загружаем карточки к повторению
-  useEffect(() => {
-    loadDueCards();
-  }, []);
+/** Добавляет новые карточки из словаря, если ещё не введены */
+async function ensureNewCards(hskLevel: 1 | 2 | 3 | 4, newPerDay: number) {
+  const words = getWordsByHsk(hskLevel);
+  const existingIds = new Set((await db.cardStates.toArray()).map((s) => s.id));
 
-  const loadDueCards = async () => {
-    try {
-      const allStates = await db.cardStates.where('deleted').equals(0).toArray();
-      const now = new Date();
-      const due = allStates.filter(state => new Date(state.due) <= now);
-      setDueCards(due);
-    } catch (error) {
-      console.error('Error loading cards:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Слова, которые ещё не введены в обучение
+  const unseen = words.filter((w) => !existingIds.has(w.id));
+  const toAdd = unseen.slice(0, newPerDay);
 
-  const submitReview = async (cardStateId: string, rating: ReviewRating) => {
-    try {
-      const cardState = await db.cardStates.get(cardStateId);
-      if (!cardState) return;
+  if (toAdd.length === 0) return;
 
-      const result = calculateNextReview(cardState, rating);
-      
-      // Сохраняем отзыв
-      await db.reviews.add({
-        id: crypto.randomUUID(),
-        cardId: cardState.cardId,
-        rating,
-        timestamp: new Date(),
-        timeSpent: 0, // TODO: отслеживать время
-      });
-
-      // Обновляем состояние карточки
-      await db.cardStates.update(cardStateId, {
-        ...result.state,
-        updatedAt: new Date(),
-      });
-
-      // Переходим к следующей карточке
-      setCurrentCardIndex(prev => prev + 1);
-    } catch (error) {
-      console.error('Error submitting review:', error);
-    }
-  };
-
-  const addCard = async (card: Card) => {
-    try {
-      await db.cards.add(card);
-      
-      // Создаём начальное состояние карточки
+  await db.transaction('rw', db.cardStates, async () => {
+    for (const word of toAdd) {
       await db.cardStates.add({
-        id: crypto.randomUUID(),
-        cardId: card.id,
+        id: word.id,
         due: new Date(),
         stability: 0,
         difficulty: 0,
@@ -71,26 +34,156 @@ export function useCards() {
         updatedAt: new Date(),
         deleted: false,
       });
-
-      await loadDueCards();
-    } catch (error) {
-      console.error('Error adding card:', error);
     }
-  };
+  });
+}
 
-  const currentCard = dueCards[currentCardIndex];
-  const hasMoreCards = currentCardIndex < dueCards.length;
-  const progress = dueCards.length > 0 ? (currentCardIndex / dueCards.length) * 100 : 0;
+export interface SessionCard {
+  wordId: string;
+  hanzi: string;
+  pinyin: string;
+  tones: number[];
+  translation: string;
+  hsk: 1 | 2 | 3 | 4;
+  tags: string[];
+  example?: string;
+  examplePinyin?: string;
+  exampleRu?: string;
+  mnemonic?: string;
+  stateId: string;
+  isNew: boolean;
+}
+
+export function useCards() {
+  const [sessionCards, setSessionCards] = useState<SessionCard[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [todayDone, setTodayDone] = useState(0);
+  const [autoSpeak, setAutoSpeak] = useState(true);
+
+  const loadSession = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const settings = await db.settings.get('main');
+      const hskLevel = (settings?.currentHsk ?? DEFAULT_SETTINGS.currentHsk) as 1 | 2 | 3 | 4;
+      const newPerDay = settings?.newCardsPerDay ?? DEFAULT_SETTINGS.newCardsPerDay;
+      const speak = settings?.autoSpeak ?? DEFAULT_SETTINGS.autoSpeak;
+      setAutoSpeak(speak);
+
+      await ensureNewCards(hskLevel, newPerDay);
+
+      const allStates = await db.cardStates.toArray();
+      const now = new Date();
+
+      // Due-карточки: просроченные или новые (reviews === 0)
+      const due = allStates.filter(
+        (s) => !s.deleted && (new Date(s.due) <= now || s.reviews === 0)
+      );
+
+      // Собираем сессию (не больше dailyGoal)
+      const dailyGoal = settings?.dailyGoal ?? DEFAULT_SETTINGS.dailyGoal;
+
+      const cards: SessionCard[] = [];
+      for (const state of due.slice(0, dailyGoal * 3)) {
+        const word = DICTIONARY.find((w) => w.id === state.id);
+        if (!word) continue;
+        cards.push({
+          wordId: word.id,
+          hanzi: word.hanzi,
+          pinyin: word.pinyin,
+          tones: word.tones,
+          translation: word.translation,
+          hsk: word.hsk,
+          tags: word.tags,
+          example: word.example,
+          examplePinyin: word.examplePinyin,
+          exampleRu: word.exampleRu,
+          mnemonic: word.mnemonic,
+          stateId: state.id,
+          isNew: state.reviews === 0,
+        });
+        if (cards.length >= dailyGoal) break;
+      }
+
+      // Подсчёт сделанного сегодня
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const todayReviews = await db.reviews
+        .where('timestamp')
+        .above(startOfToday)
+        .count();
+      setTodayDone(todayReviews);
+
+      setSessionCards(cards);
+      setCurrentIndex(0);
+    } catch (err) {
+      console.error('useCards error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSession();
+  }, [loadSession]);
+
+  // Авто-озвучка при смене карточки
+  useEffect(() => {
+    const card = sessionCards[currentIndex];
+    if (card && autoSpeak) {
+      speakHanzi(card.hanzi);
+    }
+  }, [currentIndex, sessionCards, autoSpeak]);
+
+  const submitReview = useCallback(
+    async (rating: ReviewRating, timeSpent = 0) => {
+      const card = sessionCards[currentIndex];
+      if (!card) return;
+
+      try {
+        const state = await db.cardStates.get(card.stateId);
+        if (!state) return;
+
+        const result = calculateNextReview(state, rating);
+
+        await db.reviews.add({
+          id: crypto.randomUUID(),
+          cardId: card.wordId,
+          rating,
+          timestamp: new Date(),
+          timeSpent,
+        });
+
+        await db.cardStates.update(card.stateId, {
+          ...result.state,
+          updatedAt: new Date(),
+        });
+
+        setTodayDone((n) => n + 1);
+        setCurrentIndex((i) => i + 1);
+      } catch (err) {
+        console.error('submitReview error:', err);
+      }
+    },
+    [currentIndex, sessionCards]
+  );
+
+  const currentCard = sessionCards[currentIndex] ?? null;
+  const hasMore = currentIndex < sessionCards.length;
+  const progress = sessionCards.length > 0
+    ? Math.round((currentIndex / sessionCards.length) * 100)
+    : 0;
 
   return {
-    dueCards,
+    sessionCards,
     currentCard,
-    currentCardIndex,
-    hasMoreCards,
+    currentIndex,
+    hasMore,
     progress,
     isLoading,
+    todayDone,
+    totalInSession: sessionCards.length,
     submitReview,
-    addCard,
-    loadDueCards,
+    reload: loadSession,
   };
 }

@@ -1,62 +1,36 @@
 import React from 'react';
-import { Home, BookOpen, Mic, RotateCcw, User } from 'lucide-react';
-import { ru } from '../config/i18n';
+import { Home, BookOpen, Mic, Layers, User } from 'lucide-react';
+import type { TabId } from '../context/AppContext';
 
 interface NavigationProps {
-  currentTab: string;
-  onTabChange: (tab: string) => void;
+  currentTab: TabId;
+  onTabChange: (tab: TabId) => void;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentTab, onTabChange }) => {
-  const tabs = [
-    { id: 'today', label: ru.nav.today, icon: Home },
-    { id: 'path', label: ru.nav.path, icon: BookOpen },
-    { id: 'tones', label: ru.nav.tones, icon: Mic },
-    { id: 'review', label: ru.nav.review, icon: RotateCcw },
-    { id: 'profile', label: ru.nav.profile, icon: User },
-  ];
+const TABS: { id: TabId; label: string; Icon: typeof Home; char?: string }[] = [
+  { id: 'today',   label: 'Главная', Icon: Home   },
+  { id: 'path',    label: 'Словарь', Icon: BookOpen },
+  { id: 'tones',   label: 'Тоны',    Icon: Mic    },
+  { id: 'review',  label: 'Учить',   Icon: Layers  },
+  { id: 'profile', label: 'Профиль', Icon: User   },
+];
 
-  return (
-    <nav
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'var(--paper)',
-        borderTop: '1px solid var(--line)',
-        display: 'flex',
-        justifyContent: 'space-around',
-        padding: 'var(--space-sm) 0',
-        zIndex: 1000,
-      }}
-    >
-      {tabs.map((tab) => {
-        const Icon = tab.icon;
-        const isActive = currentTab === tab.id;
-        
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: isActive ? 'var(--bamboo)' : 'var(--ink-2)',
-              transition: 'color var(--transition-fast)',
-              padding: 'var(--space-xs)',
-            }}
-          >
-            <Icon size={24} />
-            <span style={{ fontSize: 'var(--text-xs)' }}>{tab.label}</span>
-          </button>
-        );
-      })}
-    </nav>
-  );
-};
+export const Navigation: React.FC<NavigationProps> = ({ currentTab, onTabChange }) => (
+  <nav className="bottom-nav" aria-label="Навигация">
+    {TABS.map(({ id, label, Icon }) => {
+      const active = currentTab === id;
+      return (
+        <button
+          key={id}
+          className={`nav-item${active ? ' active' : ''}`}
+          onClick={() => onTabChange(id)}
+          aria-label={label}
+          aria-current={active ? 'page' : undefined}
+        >
+          <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+          <span>{label}</span>
+        </button>
+      );
+    })}
+  </nav>
+);

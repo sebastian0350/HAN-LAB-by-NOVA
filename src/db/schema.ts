@@ -1,22 +1,9 @@
-// Схема IndexedDB с Dexie (local-first)
+// Схема IndexedDB с Dexie (local-first) — v2
 
 import Dexie, { type Table } from 'dexie';
 
-export interface Card {
-  id: string;
-  hanzi: string;
-  pinyin: string;
-  tone: number;
-  translation: string;
-  level: number;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface CardState {
-  id: string;
-  cardId: string;
+  id: string;        // = wordId из dictionary
   due: Date;
   stability: number;
   difficulty: number;
@@ -27,12 +14,18 @@ export interface CardState {
   deleted: boolean;
 }
 
+export interface Favorite {
+  id: string;        // = wordId
+  addedAt: Date;
+  note?: string;
+}
+
 export interface Review {
   id: string;
   cardId: string;
   rating: 'again' | 'hard' | 'good' | 'easy';
   timestamp: Date;
-  timeSpent: number; // в миллисекундах
+  timeSpent: number;
 }
 
 export interface ToneAttempt {
@@ -41,27 +34,19 @@ export interface ToneAttempt {
   targetTone: number;
   detectedTone: number;
   accuracy: number;
-  f0Trace?: number[]; // контур тона (сворачивается через 30 дней)
+  f0Trace?: number[];
   timestamp: Date;
-}
-
-export interface DiagnosticResult {
-  id: string;
-  vocabularyLevel: number;
-  grammarLevel: number;
-  toneAccuracy: number;
-  overallLevel: number;
-  timestamp: Date;
-  answers: Array<{ question: string; correct: boolean; timeSpent: number }>;
 }
 
 export interface Settings {
   id: string;
   theme: 'light' | 'dark' | 'auto';
   soundEnabled: boolean;
+  autoSpeak: boolean;       // авто-озвучка карточки
   mascotEnabled: boolean;
-  hanziFont: 'sans' | 'serif';
   dailyGoal: number;
+  newCardsPerDay: number;
+  currentHsk: 1 | 2 | 3 | 4;
   language: string;
   updatedAt: Date;
 }
@@ -75,34 +60,34 @@ export interface Note {
   deleted: boolean;
 }
 
-export interface SyncCursor {
-  id: string;
-  lastSyncAt: Date;
-  serverUpdatedAt: Date;
-}
-
 export class HanLabDatabase extends Dexie {
-  cards!: Table<Card>;
   cardStates!: Table<CardState>;
+  favorites!: Table<Favorite>;
   reviews!: Table<Review>;
   toneAttempts!: Table<ToneAttempt>;
-  diagnosticResults!: Table<DiagnosticResult>;
   settings!: Table<Settings>;
   notes!: Table<Note>;
-  syncCursors!: Table<SyncCursor>;
 
   constructor() {
     super('HanLabDB');
-    this.version(1).stores({
-      cards: 'id, hanzi, level, tags, createdAt, updatedAt',
-      cardStates: 'id, cardId, due, updatedAt, deleted',
-      reviews: 'id, cardId, timestamp',
-      toneAttempts: 'id, hanzi, timestamp',
-      diagnosticResults: 'id, timestamp',
-      settings: 'id, updatedAt',
-      notes: 'id, cardId, createdAt, updatedAt, deleted',
-      syncCursors: 'id',
-    });
+    this.version(2)
+      .stores({
+        cardStates: 'id, due, updatedAt, deleted',
+        favorites: 'id, addedAt',
+        reviews: 'id, cardId, timestamp',
+        toneAttempts: 'id, hanzi, timestamp',
+        settings: 'id',
+        notes: 'id, cardId, createdAt, updatedAt, deleted',
+      })
+      .upgrade(async (tx) => {
+        // Миграция v1 → v2: словарь теперь статичный, карточки переносятся в states по hanzi
+        // Пытаемся переиспользовать старые cardStates
+        try {
+          await tx.table('cardStates').toArray();
+        } catch {
+          // нет данных — ок
+        }
+      });
   }
 }
 

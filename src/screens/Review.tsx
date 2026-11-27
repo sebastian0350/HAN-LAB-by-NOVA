@@ -1,167 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import { ru } from '../config/i18n';
+import React from 'react';
+import { CheckCircle, RefreshCw } from 'lucide-react';
 import { useCards } from '../hooks/useCards';
+import { useFavorites } from '../hooks/useFavorites';
+import { useAuth } from '../hooks/useAuth';
 import { WordCard } from '../components/WordCard';
-import { db } from '../db/schema';
-import type { Card } from '../db/schema';
 
 export const Review: React.FC = () => {
-  const { dueCards, currentCard, hasMoreCards, progress, isLoading, submitReview, currentCardIndex } = useCards();
-  const [currentWordData, setCurrentWordData] = useState<Card | null>(null);
-
-  // Загружаем данные карточки
-  useEffect(() => {
-    const loadWordData = async () => {
-      if (currentCard) {
-        const card = await db.cards.get(currentCard.cardId);
-        setCurrentWordData(card || null);
-      }
-    };
-    loadWordData();
-  }, [currentCard]);
-
-  // Добавляем тестовые карточки если нет данных
-  React.useEffect(() => {
-    const addSampleCards = async () => {
-      const existingCards = await db.cards.count();
-      if (existingCards === 0) {
-        const sampleCards: Card[] = [
-          {
-            id: crypto.randomUUID(),
-            hanzi: '你好',
-            pinyin: 'nǐ hǎo',
-            tone: 3,
-            translation: 'Привет',
-            level: 1,
-            tags: ['greeting'],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          {
-            id: crypto.randomUUID(),
-            hanzi: '谢谢',
-            pinyin: 'xiè xie',
-            tone: 4,
-            translation: 'Спасибо',
-            level: 1,
-            tags: ['greeting'],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          {
-            id: crypto.randomUUID(),
-            hanzi: '再见',
-            pinyin: 'zài jiàn',
-            tone: 4,
-            translation: 'До свидания',
-            level: 1,
-            tags: ['greeting'],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ];
-
-        for (const card of sampleCards) {
-          await db.cards.add(card);
-          await db.cardStates.add({
-            id: crypto.randomUUID(),
-            cardId: card.id,
-            due: new Date(),
-            stability: 0,
-            difficulty: 0,
-            reviews: 0,
-            lapses: 0,
-            updatedAt: new Date(),
-            deleted: false,
-          });
-        }
-        window.location.reload();
-      }
-    };
-    addSampleCards();
-  }, []);
+  const { currentCard, currentIndex, hasMore, progress, isLoading, totalInSession, submitReview, reload } = useCards();
+  const { user } = useAuth();
+  const { isFavorite, toggle } = useFavorites(user?.id);
 
   if (isLoading) {
     return (
-      <div style={{ padding: 'var(--space-xl)', paddingBottom: '100px' }}>
-        <p>Загрузка...</p>
+      <div className="screen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🐼</div>
+          <p style={{ color: 'var(--ink-2)' }}>Загружаем карточки...</p>
+        </div>
       </div>
     );
   }
 
-  if (dueCards.length === 0) {
+  // Пусто
+  if (totalInSession === 0) {
     return (
-      <div style={{ padding: 'var(--space-xl)', paddingBottom: '100px', textAlign: 'center' }}>
-        <h1>{ru.nav.review}</h1>
-        <p style={{ marginTop: 'var(--space-lg)', color: 'var(--ink-2)' }}>
-          Нет карточек для повторения!
+      <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+        <div style={{ fontSize: 64, marginBottom: 16 }}>🎋</div>
+        <div className="seal-stamp" style={{ marginBottom: 16 }}>通</div>
+        <h2 style={{ marginBottom: 8 }}>Всё повторено!</h2>
+        <p style={{ color: 'var(--ink-2)', maxWidth: 280, marginBottom: 24 }}>
+          На сегодня карточек нет. Бао гордится — возвращайся завтра!
         </p>
+        <button className="btn btn-secondary btn-sm" onClick={reload} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <RefreshCw size={14} /> Проверить снова
+        </button>
       </div>
     );
   }
 
-  if (!hasMoreCards) {
+  // Завершено
+  if (!hasMore) {
+    const pct = Math.round((currentIndex / totalInSession) * 100);
     return (
-      <div style={{ padding: 'var(--space-xl)', paddingBottom: '100px', textAlign: 'center' }}>
-        <h1>{ru.nav.review}</h1>
-        <p style={{ marginTop: 'var(--space-lg)', color: 'var(--ink-2)' }}>
-          Занятие завершено! 🎉
+      <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+        <CheckCircle size={56} color="var(--bamboo)" strokeWidth={1.5} style={{ marginBottom: 12 }} />
+        <div className="seal-stamp" style={{ marginBottom: 16 }}>成</div>
+        <h1 style={{ marginBottom: 8 }}>Занятие завершено!</h1>
+        <p style={{ color: 'var(--ink-2)', marginBottom: 24 }}>
+          Повторено {totalInSession} карточек · {pct}% готово
         </p>
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            marginTop: 'var(--space-lg)',
-            padding: 'var(--space-md) var(--space-lg)',
-            backgroundColor: 'var(--bamboo)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 'var(--radius-pill)',
-            cursor: 'pointer',
-          }}
-        >
-          Начать заново
+        <button className="btn btn-primary btn-full" style={{ maxWidth: 300 }} onClick={reload}>
+          Новое занятие
         </button>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 'var(--space-xl)', paddingBottom: '100px' }}>
+    <div className="screen" style={{ paddingTop: 'var(--sp-5)' }}>
       {/* Прогресс */}
-      <div style={{ marginBottom: 'var(--space-lg)' }}>
-        <div
-          style={{
-            height: '4px',
-            backgroundColor: 'var(--line)',
-            borderRadius: '2px',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${progress}%`,
-              backgroundColor: 'var(--bamboo)',
-              transition: 'width 0.3s ease',
-            }}
-          />
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginBottom: 6 }}>
+          <span>Карточка {currentIndex + 1} из {totalInSession}</span>
+          <span>{progress}%</span>
         </div>
-        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--ink-2)', marginTop: 'var(--space-sm)' }}>
-          {currentCardIndex + 1} / {dueCards.length}
-        </p>
+        <div className="progress-track">
+          <div className="progress-fill" style={{ width: `${progress}%` }} />
+        </div>
       </div>
 
       {/* Карточка */}
-      {currentWordData && currentCard && (
+      {currentCard && (
         <WordCard
-          word={{
-            id: currentWordData.id,
-            hanzi: currentWordData.hanzi,
-            pinyin: currentWordData.pinyin,
-            tone: currentWordData.tone,
-            translation: currentWordData.translation,
-          }}
-          onAnswer={(rating) => submitReview(currentCard.id, rating)}
+          card={currentCard}
+          isFavorite={isFavorite(currentCard.wordId)}
+          onToggleFavorite={() => toggle(currentCard.wordId)}
+          onAnswer={(r) => submitReview(r)}
         />
       )}
     </div>
