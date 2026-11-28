@@ -67,9 +67,7 @@ export interface Settings {
   dailyGoal: number;
   newCardsPerDay: number;
   currentHsk: 1 | 2 | 3 | 4 | 5 | 6;
-  /** Программа, по которой пользователь учился раньше или учится сейчас */
   learningProgram: 'hsk-2.0' | 'hsk-3.0' | 'from-scratch';
-  /** Уровень, с которого начинать (для онбординга) */
   startingLevel: 1 | 2 | 3 | 4 | 5 | 6;
   language: string;
   updatedAt: Date;
@@ -173,7 +171,6 @@ export function initializeDatabase(): Promise<void> {
           settings = { ...DEFAULT_APP_SETTINGS, updatedAt: new Date() };
           await db.settings.put(settings);
         } else {
-          // Миграция старых настроек
           if (!(settings as any).learningProgram) {
             (settings as any).learningProgram = 'hsk-3.0';
             (settings as any).startingLevel = (settings as any).currentHsk || 1;
@@ -181,7 +178,8 @@ export function initializeDatabase(): Promise<void> {
           }
         }
 
-        const maxLevel = Math.max(2, settings.currentHsk || 1);
+        // Загружаем HSK 1–3 по умолчанию (гораздо больше слов)
+        const maxLevel = Math.max(3, settings.currentHsk || 1);
 
         const existingCards = await db.cards.toArray();
         const existingCardIds = new Set(existingCards.map((c) => c.id));
@@ -251,7 +249,7 @@ export function initializeDatabase(): Promise<void> {
 export async function resetAllProgress(): Promise<void> {
   const now = new Date();
   const settings = await db.settings.get('main');
-  const maxLevel = Math.max(2, settings?.currentHsk || 1);
+  const maxLevel = Math.max(3, settings?.currentHsk || 1);
   const wordsToLoad = DICTIONARY.filter((w) => w.hsk <= maxLevel);
 
   await db.transaction('rw', [db.cardStates, db.reviews, db.toneAttempts, db.notes], async () => {
