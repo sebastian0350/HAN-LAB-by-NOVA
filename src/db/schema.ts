@@ -1,7 +1,6 @@
 // Схема IndexedDB с Dexie (local-first) — поддержка программ HSK 2.0 / 3.0 и расширенного словаря
 
 import Dexie, { type Table } from 'dexie';
-import { HSK1_WORDS } from '../data/hsk1';
 import { DICTIONARY } from '../data/dictionary';
 
 export interface Card {
