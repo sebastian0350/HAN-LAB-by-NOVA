@@ -18,7 +18,7 @@
 - **База данных:** IndexedDB (Dexie) для локального хранения
 - **Бэкенд:** Supabase (PostgreSQL + Auth) для синхронизации
 - **Аудио:** Web Audio API для анализа тонов
-- **Хостинг:** Cloudflare Pages (статический)
+- **Хостинг:** GitHub Pages (статический)
 - **Тестирование:** Vitest + Playwright
 
 ## Структура проекта
