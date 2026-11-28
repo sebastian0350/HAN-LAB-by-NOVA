@@ -54,8 +54,9 @@ body::after {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 
 /* ── Типографика ── */
@@ -104,7 +105,7 @@ input:focus {
 
 /* ── Карточки ── */
 .card {
-  background: white;
+  background: var(--card-bg, white);
   border-radius: var(--r-lg);
   padding: var(--sp-6);
   box-shadow: var(--shadow-card);
@@ -124,23 +125,24 @@ input:focus {
 .card:hover::before { opacity: 1; }
 
 .card-paper {
-  background: linear-gradient(160deg, rgba(255,255,255,0.7) 0%, var(--paper-2) 100%);
+  background: linear-gradient(160deg, var(--card-bg, rgba(255,255,255,0.85)) 0%, var(--paper-2) 100%);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: var(--sp-6);
+  padding: var(--sp-5);
   box-shadow: var(--shadow-sm);
 }
 
-/* ── Флэшкарта (3D-переворот) ── */
+/* ── Флэшкарта (3D-переворот без обрезания высоты) ── */
 .flashcard-scene {
-  perspective: 1000px;
+  perspective: 1200px;
   width: 100%;
 }
 
 .flashcard-inner {
   position: relative;
   width: 100%;
-  min-height: 280px;
+  display: grid;
+  grid-template-columns: 1fr;
   transform-style: preserve-3d;
   transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -150,12 +152,24 @@ input:focus {
 }
 
 .flashcard-face {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1 / 2 / 2;
+  width: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border-radius: var(--r-lg);
   overflow: hidden;
+  background: var(--card-bg, white);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.flashcard-inner.flipped .flashcard-face:not(.flashcard-back) {
+  pointer-events: none;
+}
+
+.flashcard-inner:not(.flipped) .flashcard-back {
+  pointer-events: none;
 }
 
 .flashcard-back {
@@ -317,10 +331,10 @@ input:focus {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
   height: calc(var(--nav-h) + var(--safe-bottom));
   padding-bottom: var(--safe-bottom);
-  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--line);

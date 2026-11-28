@@ -4,6 +4,7 @@
   --paper-2:  #f4ede0;
   --paper-3:  #eddfcc;
   --paper-4:  #e5d1b8;
+  --card-bg:  #ffffff;
 
   --ink:      #1a1710;
   --ink-2:    #56514a;
@@ -38,11 +39,13 @@
   --tone-3: #7a4e96;   /* 3-й тон: фиолетовый — падающий-восходящий */
   --tone-4: #b5281e;   /* 4-й тон: красный — нисходящий */
   --tone-0: #8c8678;   /* нейтральный */
+  --tone-neutral: #8c8678;
 
   --tone-1-soft: rgba(47, 95, 138, 0.12);
   --tone-2-soft: rgba(61, 107, 72, 0.12);
   --tone-3-soft: rgba(122, 78, 150, 0.12);
   --tone-4-soft: rgba(181, 40, 30, 0.12);
+  --tone-0-soft: rgba(140, 134, 120, 0.14);
 
   /* ── Радиусы ── */
   --r-xs:   6px;
@@ -102,6 +105,7 @@
   --paper-2:  #1b1915;
   --paper-3:  #232019;
   --paper-4:  #2d2a22;
+  --card-bg:  #1e1c17;
   --ink:      #f0eade;
   --ink-2:    #b4ad9e;
   --ink-3:    #7e7868;
@@ -123,11 +127,12 @@
 
 /* ── Тёмная тема: системные настройки ── */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root[data-theme='auto'] {
     --paper:    #131210;
     --paper-2:  #1b1915;
     --paper-3:  #232019;
     --paper-4:  #2d2a22;
+    --card-bg:  #1e1c17;
     --ink:      #f0eade;
     --ink-2:    #b4ad9e;
     --ink-3:    #7e7868;

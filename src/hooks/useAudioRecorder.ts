@@ -11,6 +11,13 @@ export function useAudioRecorder() {
   const startRecording = useCallback(async () => {
     try {
       setError(null);
+      setAudioBlob(null);
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError('Ваш браузер не поддерживает запись звука или страница открыта без HTTPS.');
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       const mediaRecorder = new MediaRecorder(stream);
@@ -24,15 +31,23 @@ export function useAudioRecorder() {
       };
       
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const mimeType = mediaRecorder.mimeType || 'audio/webm';
+        const blob = new Blob(chunksRef.current, { type: mimeType });
         setAudioBlob(blob);
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
       
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (err: any) {
-      setError(err.message || 'Нет доступа к микрофону');
+    } catch (err: unknown) {
+      const name = err instanceof Error ? err.name : '';
+      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+        setError('Доступ к микрофону отклонён. Разрешите использование микрофона в настройках браузера или используйте режим «Упражнение».');
+      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+        setError('Микрофон не найден на этом устройстве. Вы можете проходить тренировку в режиме «Упражнение».');
+      } else {
+        setError('Не удалось получить доступ к микрофону. Проверьте разрешения браузера.');
+      }
     }
   }, []);
 
@@ -58,3 +73,4 @@ export function useAudioRecorder() {
     reset,
   };
 }
+

@@ -4,38 +4,56 @@ import type { User } from '@supabase/supabase-js';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(supabase));
 
   useEffect(() => {
-    // Проверяем текущую сессию
-    const checkSession = async () => {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
+    if (!supabase) {
+      return;
+    }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
+    let isMounted = true;
+    const timeoutId = window.setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 2500);
+
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase!.auth.getSession();
+        if (isMounted) {
+          setUser(session?.user ?? null);
+        }
+      } catch (err) {
+        console.warn('Supabase session check failed, continuing in local mode:', err);
+      } finally {
+        window.clearTimeout(timeoutId);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     };
 
-    checkSession();
+    void checkSession();
 
-    // Подписываемся на изменения аутентификации
-    if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (isMounted) {
           setUser(session?.user ?? null);
           setLoading(false);
         }
-      );
+      }
+    );
 
-      return () => subscription.unsubscribe();
-    }
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    if (!supabase) throw new Error('Supabase not configured');
+    if (!supabase) throw new Error('Облачная синхронизация не настроена. Используйте локальный режим.');
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -52,7 +70,7 @@ export function useAuth() {
   };
 
   const signIn = async (email: string, password: string) => {
-    if (!supabase) throw new Error('Supabase not configured');
+    if (!supabase) throw new Error('Облачная синхронизация не настроена. Используйте локальный режим.');
     
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -64,7 +82,7 @@ export function useAuth() {
   };
 
   const signInWithMagicLink = async (email: string) => {
-    if (!supabase) throw new Error('Supabase not configured');
+    if (!supabase) throw new Error('Облачная синхронизация не настроена. Используйте локальный режим.');
     
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
@@ -75,14 +93,14 @@ export function useAuth() {
   };
 
   const signOut = async () => {
-    if (!supabase) throw new Error('Supabase not configured');
+    if (!supabase) return;
     
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
 
   const resetPassword = async (email: string) => {
-    if (!supabase) throw new Error('Supabase not configured');
+    if (!supabase) throw new Error('Облачная синхронизация не настроена.');
     
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) throw error;
@@ -99,3 +117,4 @@ export function useAuth() {
     resetPassword,
   };
 }
+

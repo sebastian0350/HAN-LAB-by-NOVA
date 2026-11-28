@@ -1,16 +1,25 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { LogOut, Moon, Sun, Volume2, VolumeX, Target, BookOpen } from 'lucide-react';
+import {
+  LogOut,
+  Moon,
+  Sun,
+  Volume2,
+  VolumeX,
+  Target,
+  BookOpen,
+} from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { db } from '../db/schema';
+import { useProgress } from '../hooks/useProgress';
+import { db, initializeDatabase } from '../db/schema';
 
 function Row({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid var(--line-2)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0', borderBottom: '1px solid var(--line-2)', gap: 8 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={{ color: 'var(--bamboo)', width: 20 }}>{icon}</span>
+        <span style={{ color: 'var(--bamboo)', width: 20, display: 'flex', alignItems: 'center' }}>{icon}</span>
         <span style={{ fontSize: 'var(--text-sm)' }}>{label}</span>
       </div>
-      <div>{children}</div>
+      <div style={{ flexShrink: 0 }}>{children}</div>
     </div>
   );
 }
@@ -18,6 +27,7 @@ function Row({ icon, label, children }: { icon: React.ReactNode; label: string; 
 function ToggleBtn({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
+      type="button"
       onClick={() => onChange(!value)}
       style={{
         width: 44, height: 24,
@@ -42,46 +52,58 @@ function ToggleBtn({ value, onChange }: { value: boolean; onChange: (v: boolean)
 
 export const Profile: React.FC = () => {
   const { user, signOut, isGuest } = useAuth();
+  const { refresh } = useProgress();
+
   const [settings, setSettings] = useState({
-    theme: 'auto' as 'light' | 'dark' | 'auto',
+    theme: 'light' as 'light' | 'dark' | 'auto',
     soundEnabled: true,
     autoSpeak: true,
+    mascotEnabled: true,
     dailyGoal: 10,
-    newCardsPerDay: 5,
+    newCardsPerDay: 10,
     currentHsk: 1 as 1 | 2 | 3 | 4,
   });
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    db.settings.get('main').then((s) => {
-      if (s) setSettings(prev => ({ ...prev, ...s }));
-    });
+    initializeDatabase()
+      .then(() => db.settings.get('main'))
+      .then((s) => {
+        if (s) setSettings((prev) => ({ ...prev, ...s }));
+      })
+      .catch(console.error);
   }, []);
 
-  const updateSetting = async <K extends keyof typeof settings>(key: K, value: typeof settings[K]) => {
+  const updateSetting = async <K extends keyof typeof settings>(key: K, value: (typeof settings)[K]) => {
     const next = { ...settings, [key]: value };
     setSettings(next);
-    await db.settings.put({ id: 'main', ...next, mascotEnabled: true, language: 'ru', updatedAt: new Date() });
+    await db.settings.put({ id: 'main', ...next, language: 'ru', updatedAt: new Date() });
 
-    // Применяем тему мгновенно
     if (key === 'theme') {
-      document.documentElement.dataset.theme = value as string;
+      if (value === 'dark') {
+        document.documentElement.dataset.theme = 'dark';
+      } else if (value === 'auto') {
+        document.documentElement.dataset.theme = 'auto';
+      } else {
+        document.documentElement.dataset.theme = 'light';
+      }
     }
 
+    await refresh();
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
 
+
   const handleSignOut = async () => {
-    if (!confirm('Выйти из аккаунта?')) return;
     try {
       await signOut();
       localStorage.removeItem('hanlab_user');
       window.location.reload();
-    } catch {}
+    } catch (err) {
+      console.error(err);
+    }
   };
-
-  const hskWords: Record<number, number> = { 1: 101, 2: 100, 3: 80, 4: 50 };
 
   return (
     <div className="screen">
@@ -137,7 +159,6 @@ export const Profile: React.FC = () => {
               }}
             >
               <span>HSK {level}</span>
-              <span style={{ fontSize: 9, fontWeight: 400, opacity: 0.75 }}>{hskWords[level]} сл.</span>
             </button>
           ))}
         </div>

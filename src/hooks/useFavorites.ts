@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { db } from '../db/schema';
+import { db, initializeDatabase } from '../db/schema';
 import { supabase } from '../lib/supabase';
 
 export function useFavorites(userId?: string) {
@@ -7,42 +7,58 @@ export function useFavorites(userId?: string) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const favs = await db.favorites.toArray();
-    setFavoriteIds(new Set(favs.map((f) => f.id)));
-    setLoading(false);
+    try {
+      await initializeDatabase();
+      const favs = await db.favorites.toArray();
+      setFavoriteIds(new Set(favs.map((f) => f.id)));
+    } catch (err) {
+      console.error('useFavorites error:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    void refresh();
+    let mounted = true;
+    initializeDatabase()
+      .then(() => {
+        if (mounted) return refresh();
+      })
+      .catch(console.error);
+    return () => {
+      mounted = false;
+    };
   }, [refresh]);
 
   const toggle = useCallback(
     async (wordId: string) => {
       const isFav = favoriteIds.has(wordId);
-      if (isFav) {
-        await db.favorites.delete(wordId);
-        setFavoriteIds((prev) => {
-          const next = new Set(prev);
-          next.delete(wordId);
-          return next;
-        });
-        // Sync to Supabase
-        if (supabase && userId) {
-          await supabase
-            .from('favorites')
-            .delete()
-            .eq('user_id', userId)
-            .eq('word_id', wordId);
+      try {
+        if (isFav) {
+          await db.favorites.delete(wordId);
+          setFavoriteIds((prev) => {
+            const next = new Set(prev);
+            next.delete(wordId);
+            return next;
+          });
+          if (supabase && userId) {
+            await supabase
+              .from('favorites')
+              .delete()
+              .eq('user_id', userId)
+              .eq('word_id', wordId);
+          }
+        } else {
+          await db.favorites.put({ id: wordId, addedAt: new Date() });
+          setFavoriteIds((prev) => new Set([...prev, wordId]));
+          if (supabase && userId) {
+            await supabase
+              .from('favorites')
+              .upsert({ user_id: userId, word_id: wordId, added_at: new Date().toISOString() });
+          }
         }
-      } else {
-        await db.favorites.put({ id: wordId, addedAt: new Date() });
-        setFavoriteIds((prev) => new Set([...prev, wordId]));
-        // Sync to Supabase
-        if (supabase && userId) {
-          await supabase
-            .from('favorites')
-            .upsert({ user_id: userId, word_id: wordId, added_at: new Date().toISOString() });
-        }
+      } catch (err) {
+        console.warn('Error toggling favorite:', err);
       }
     },
     [favoriteIds, userId]
@@ -55,3 +71,4 @@ export function useFavorites(userId?: string) {
 
   return { favoriteIds, isFavorite, toggle, loading, refresh };
 }
+

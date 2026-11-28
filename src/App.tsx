@@ -7,29 +7,32 @@ import { Tones } from './screens/Tones';
 import { Review } from './screens/Review';
 import { Profile } from './screens/Profile';
 import { useAuth } from './hooks/useAuth';
-import { db } from './db/schema';
+import { db, initializeDatabase } from './db/schema';
 import type { TabId } from './context/AppContext';
 
 type AppMode = 'welcome' | 'app';
 
 function App() {
-  const [appMode, setAppMode] = useState<AppMode>('welcome');
+  const [appMode, setAppMode] = useState<AppMode>(() =>
+    localStorage.getItem('hanlab_user') ? 'app' : 'welcome'
+  );
   const [currentTab, setCurrentTab] = useState<TabId>('today');
   const { user, loading } = useAuth();
 
+  // Инициализация базы данных и применение темы при первом запуске
   useEffect(() => {
-    if (user || localStorage.getItem('hanlab_user')) {
-      setAppMode('app');
-    }
-  }, [user]);
-
-  // Применяем сохранённую тему
-  useEffect(() => {
-    db.settings.get('main').then((s) => {
-      if (s?.theme && s.theme !== 'auto') {
-        document.documentElement.dataset.theme = s.theme;
-      }
-    });
+    initializeDatabase()
+      .then(() => db.settings.get('main'))
+      .then((s) => {
+        if (s?.theme === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+        } else if (s?.theme === 'auto') {
+          delete document.documentElement.dataset.theme;
+        } else {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const handleStart = (mode: 'guest' | 'authenticated') => {
@@ -41,28 +44,28 @@ function App() {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: 12 }}>
         <div style={{ fontSize: 48 }}>🐼</div>
-        <p style={{ color: 'var(--ink-2)', fontSize: 'var(--text-sm)' }}>Загрузка...</p>
+        <p style={{ color: 'var(--ink-2)', fontSize: 'var(--text-sm)' }}>Загрузка Хань-Лаб...</p>
       </div>
     );
   }
 
-  if (appMode === 'welcome') {
+  if (appMode === 'welcome' && !user) {
     return <Welcome onStart={handleStart} />;
   }
 
   const renderScreen = () => {
     switch (currentTab) {
       case 'today':   return <Today onTabChange={setCurrentTab} />;
-      case 'path':    return <Path />;
+      case 'path':    return <Path onTabChange={setCurrentTab} />;
       case 'tones':   return <Tones />;
-      case 'review':  return <Review />;
+      case 'review':  return <Review onTabChange={setCurrentTab} />;
       case 'profile': return <Profile />;
     }
   };
 
   return (
     <>
-      <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+      <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', width: '100%' }}>
         {renderScreen()}
       </main>
       <Navigation currentTab={currentTab} onTabChange={setCurrentTab} />
@@ -71,3 +74,4 @@ function App() {
 }
 
 export default App;
+

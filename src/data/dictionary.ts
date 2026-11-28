@@ -1,4 +1,7 @@
-// Полный словарь HSK 1–4: 500 слов с примерами и контекстом
+// Полный словарь HSK 1–4 с примерами и контекстом (база HSK 1 — 80 слов из hsk1.ts)
+import { HSK1_WORDS, HSK1_CATEGORIES, normalizePinyin, type HskWord } from './hsk1';
+
+export { HSK1_WORDS, HSK1_CATEGORIES, normalizePinyin, type HskWord };
 
 export interface DictWord {
   id: string;
@@ -8,6 +11,7 @@ export interface DictWord {
   translation: string;
   hsk: 1 | 2 | 3 | 4;
   tags: string[];
+  category?: string;
   example?: string;        // пример на китайском
   examplePinyin?: string;  // пример с пиньинь
   exampleRu?: string;      // перевод примера
@@ -16,115 +20,8 @@ export interface DictWord {
 }
 
 export const DICTIONARY: DictWord[] = [
-  // ═══════════════ HSK 1 ═══════════════
-  // Приветствия
-  { id: 'h1_001', hanzi: '你好', pinyin: 'nǐ hǎo', tones: [3,3], translation: 'привет', hsk: 1, tags: ['greeting'], example: '你好，你叫什么名字？', examplePinyin: 'Nǐ hǎo, nǐ jiào shénme míngzi?', exampleRu: 'Привет, как тебя зовут?', mnemonic: '你 ты + 好 хороший → "ты хороший" = привет' },
-  { id: 'h1_002', hanzi: '谢谢', pinyin: 'xièxie', tones: [4,0], translation: 'спасибо', hsk: 1, tags: ['greeting'], example: '谢谢你的帮助！', examplePinyin: 'Xièxie nǐ de bāngzhù!', exampleRu: 'Спасибо за твою помощь!' },
-  { id: 'h1_003', hanzi: '再见', pinyin: 'zàijiàn', tones: [4,4], translation: 'до свидания', hsk: 1, tags: ['greeting'], example: '明天见！再见！', examplePinyin: 'Míngtiān jiàn! Zàijiàn!', exampleRu: 'Увидимся завтра! До свидания!' },
-  { id: 'h1_004', hanzi: '不客气', pinyin: 'bù kèqi', tones: [4,4,0], translation: 'пожалуйста (не за что)', hsk: 1, tags: ['greeting'] },
-  { id: 'h1_005', hanzi: '对不起', pinyin: 'duìbuqǐ', tones: [4,0,3], translation: 'извините', hsk: 1, tags: ['greeting'], example: '对不起，我来晚了。', examplePinyin: 'Duìbuqǐ, wǒ lái wǎn le.', exampleRu: 'Извините, я опоздал.' },
-  { id: 'h1_006', hanzi: '没关系', pinyin: 'méiguānxi', tones: [2,1,0], translation: 'ничего, не страшно', hsk: 1, tags: ['greeting'] },
-  // Местоимения
-  { id: 'h1_007', hanzi: '我', pinyin: 'wǒ', tones: [3], translation: 'я', hsk: 1, tags: ['pronoun'], example: '我是学生。', examplePinyin: 'Wǒ shì xuésheng.', exampleRu: 'Я — студент.', mnemonic: 'рука с копьём → защищаю себя = Я' },
-  { id: 'h1_008', hanzi: '你', pinyin: 'nǐ', tones: [3], translation: 'ты', hsk: 1, tags: ['pronoun'] },
-  { id: 'h1_009', hanzi: '他', pinyin: 'tā', tones: [1], translation: 'он', hsk: 1, tags: ['pronoun'] },
-  { id: 'h1_010', hanzi: '她', pinyin: 'tā', tones: [1], translation: 'она', hsk: 1, tags: ['pronoun'] },
-  { id: 'h1_011', hanzi: '我们', pinyin: 'wǒmen', tones: [3,0], translation: 'мы', hsk: 1, tags: ['pronoun'] },
-  { id: 'h1_012', hanzi: '你们', pinyin: 'nǐmen', tones: [3,0], translation: 'вы', hsk: 1, tags: ['pronoun'] },
-  { id: 'h1_013', hanzi: '他们', pinyin: 'tāmen', tones: [1,0], translation: 'они', hsk: 1, tags: ['pronoun'] },
-  // Числа
-  { id: 'h1_014', hanzi: '零', pinyin: 'líng', tones: [2], translation: 'ноль', hsk: 1, tags: ['number'] },
-  { id: 'h1_015', hanzi: '一', pinyin: 'yī', tones: [1], translation: 'один', hsk: 1, tags: ['number'], mnemonic: 'одна горизонтальная черта = 1' },
-  { id: 'h1_016', hanzi: '二', pinyin: 'èr', tones: [4], translation: 'два', hsk: 1, tags: ['number'], mnemonic: 'две горизонтальные черты = 2' },
-  { id: 'h1_017', hanzi: '三', pinyin: 'sān', tones: [1], translation: 'три', hsk: 1, tags: ['number'], mnemonic: 'три черты = 3' },
-  { id: 'h1_018', hanzi: '四', pinyin: 'sì', tones: [4], translation: 'четыре', hsk: 1, tags: ['number'] },
-  { id: 'h1_019', hanzi: '五', pinyin: 'wǔ', tones: [3], translation: 'пять', hsk: 1, tags: ['number'] },
-  { id: 'h1_020', hanzi: '六', pinyin: 'liù', tones: [4], translation: 'шесть', hsk: 1, tags: ['number'] },
-  { id: 'h1_021', hanzi: '七', pinyin: 'qī', tones: [1], translation: 'семь', hsk: 1, tags: ['number'] },
-  { id: 'h1_022', hanzi: '八', pinyin: 'bā', tones: [1], translation: 'восемь', hsk: 1, tags: ['number'] },
-  { id: 'h1_023', hanzi: '九', pinyin: 'jiǔ', tones: [3], translation: 'девять', hsk: 1, tags: ['number'] },
-  { id: 'h1_024', hanzi: '十', pinyin: 'shí', tones: [2], translation: 'десять', hsk: 1, tags: ['number'], mnemonic: 'крест = перекрёсток = 10' },
-  { id: 'h1_025', hanzi: '百', pinyin: 'bǎi', tones: [3], translation: 'сто', hsk: 1, tags: ['number'] },
-  { id: 'h1_026', hanzi: '千', pinyin: 'qiān', tones: [1], translation: 'тысяча', hsk: 1, tags: ['number'] },
-  // Время
-  { id: 'h1_027', hanzi: '今天', pinyin: 'jīntiān', tones: [1,1], translation: 'сегодня', hsk: 1, tags: ['time'], example: '今天天气很好。', examplePinyin: 'Jīntiān tiānqì hěn hǎo.', exampleRu: 'Сегодня погода хорошая.' },
-  { id: 'h1_028', hanzi: '明天', pinyin: 'míngtiān', tones: [2,1], translation: 'завтра', hsk: 1, tags: ['time'] },
-  { id: 'h1_029', hanzi: '昨天', pinyin: 'zuótiān', tones: [2,1], translation: 'вчера', hsk: 1, tags: ['time'] },
-  { id: 'h1_030', hanzi: '年', pinyin: 'nián', tones: [2], translation: 'год', hsk: 1, tags: ['time'] },
-  { id: 'h1_031', hanzi: '月', pinyin: 'yuè', tones: [4], translation: 'месяц; луна', hsk: 1, tags: ['time'], radical: '月', mnemonic: 'силуэт луны' },
-  { id: 'h1_032', hanzi: '日', pinyin: 'rì', tones: [4], translation: 'день; солнце', hsk: 1, tags: ['time'], radical: '日', mnemonic: 'квадрат с точкой = солнце' },
-  { id: 'h1_033', hanzi: '星期', pinyin: 'xīngqī', tones: [1,1], translation: 'день недели; неделя', hsk: 1, tags: ['time'] },
-  { id: 'h1_034', hanzi: '上午', pinyin: 'shàngwǔ', tones: [4,3], translation: 'утро; до полудня', hsk: 1, tags: ['time'] },
-  { id: 'h1_035', hanzi: '下午', pinyin: 'xiàwǔ', tones: [4,3], translation: 'после полудня', hsk: 1, tags: ['time'] },
-  { id: 'h1_036', hanzi: '晚上', pinyin: 'wǎnshang', tones: [3,0], translation: 'вечер', hsk: 1, tags: ['time'] },
-  { id: 'h1_037', hanzi: '现在', pinyin: 'xiànzài', tones: [4,4], translation: 'сейчас', hsk: 1, tags: ['time'] },
-  // Глаголы базовые
-  { id: 'h1_038', hanzi: '是', pinyin: 'shì', tones: [4], translation: 'быть, являться', hsk: 1, tags: ['verb'], example: '我是中国人。', examplePinyin: 'Wǒ shì Zhōngguórén.', exampleRu: 'Я — китаец.' },
-  { id: 'h1_039', hanzi: '有', pinyin: 'yǒu', tones: [3], translation: 'иметь; есть', hsk: 1, tags: ['verb'], example: '我有一个哥哥。', examplePinyin: 'Wǒ yǒu yīgè gēgē.', exampleRu: 'У меня есть старший брат.' },
-  { id: 'h1_040', hanzi: '叫', pinyin: 'jiào', tones: [4], translation: 'звать, называться', hsk: 1, tags: ['verb'], example: '你叫什么名字？', examplePinyin: 'Nǐ jiào shénme míngzi?', exampleRu: 'Как тебя зовут?' },
-  { id: 'h1_041', hanzi: '来', pinyin: 'lái', tones: [2], translation: 'приходить', hsk: 1, tags: ['verb'] },
-  { id: 'h1_042', hanzi: '去', pinyin: 'qù', tones: [4], translation: 'идти, уходить', hsk: 1, tags: ['verb'] },
-  { id: 'h1_043', hanzi: '吃', pinyin: 'chī', tones: [1], translation: 'есть, кушать', hsk: 1, tags: ['verb'], example: '我想吃饺子。', examplePinyin: 'Wǒ xiǎng chī jiǎozi.', exampleRu: 'Я хочу есть пельмени.' },
-  { id: 'h1_044', hanzi: '喝', pinyin: 'hē', tones: [1], translation: 'пить', hsk: 1, tags: ['verb'] },
-  { id: 'h1_045', hanzi: '看', pinyin: 'kàn', tones: [4], translation: 'смотреть', hsk: 1, tags: ['verb'] },
-  { id: 'h1_046', hanzi: '说', pinyin: 'shuō', tones: [1], translation: 'говорить', hsk: 1, tags: ['verb'] },
-  { id: 'h1_047', hanzi: '听', pinyin: 'tīng', tones: [1], translation: 'слушать', hsk: 1, tags: ['verb'] },
-  { id: 'h1_048', hanzi: '写', pinyin: 'xiě', tones: [3], translation: 'писать', hsk: 1, tags: ['verb'] },
-  { id: 'h1_049', hanzi: '读', pinyin: 'dú', tones: [2], translation: 'читать', hsk: 1, tags: ['verb'] },
-  { id: 'h1_050', hanzi: '学习', pinyin: 'xuéxí', tones: [2,2], translation: 'учиться', hsk: 1, tags: ['verb'], example: '我在学习汉语。', examplePinyin: 'Wǒ zài xuéxí Hànyǔ.', exampleRu: 'Я учу китайский.' },
-  { id: 'h1_051', hanzi: '工作', pinyin: 'gōngzuò', tones: [1,4], translation: 'работать; работа', hsk: 1, tags: ['verb'] },
-  { id: 'h1_052', hanzi: '住', pinyin: 'zhù', tones: [4], translation: 'жить, проживать', hsk: 1, tags: ['verb'] },
-  { id: 'h1_053', hanzi: '买', pinyin: 'mǎi', tones: [3], translation: 'покупать', hsk: 1, tags: ['verb'] },
-  { id: 'h1_054', hanzi: '坐', pinyin: 'zuò', tones: [4], translation: 'сидеть; ехать на', hsk: 1, tags: ['verb'] },
-  { id: 'h1_055', hanzi: '走', pinyin: 'zǒu', tones: [3], translation: 'идти пешком', hsk: 1, tags: ['verb'] },
-  { id: 'h1_056', hanzi: '认识', pinyin: 'rènshi', tones: [4,0], translation: 'знать (человека); познакомиться', hsk: 1, tags: ['verb'] },
-  { id: 'h1_057', hanzi: '喜欢', pinyin: 'xǐhuān', tones: [3,1], translation: 'любить, нравиться', hsk: 1, tags: ['verb'], example: '我喜欢喝茶。', examplePinyin: 'Wǒ xǐhuān hē chá.', exampleRu: 'Я люблю пить чай.' },
-  { id: 'h1_058', hanzi: '想', pinyin: 'xiǎng', tones: [3], translation: 'хотеть; думать', hsk: 1, tags: ['verb'] },
-  { id: 'h1_059', hanzi: '知道', pinyin: 'zhīdào', tones: [1,4], translation: 'знать (о чём-то)', hsk: 1, tags: ['verb'] },
-  { id: 'h1_060', hanzi: '打电话', pinyin: 'dǎ diànhuà', tones: [3,4,4], translation: 'звонить по телефону', hsk: 1, tags: ['verb'] },
-  // Существительные базовые
-  { id: 'h1_061', hanzi: '人', pinyin: 'rén', tones: [2], translation: 'человек', hsk: 1, tags: ['noun'], radical: '人', mnemonic: 'человек в профиль' },
-  { id: 'h1_062', hanzi: '中国', pinyin: 'Zhōngguó', tones: [1,2], translation: 'Китай', hsk: 1, tags: ['country'] },
-  { id: 'h1_063', hanzi: '汉语', pinyin: 'Hànyǔ', tones: [4,3], translation: 'китайский язык', hsk: 1, tags: ['language'] },
-  { id: 'h1_064', hanzi: '朋友', pinyin: 'péngyou', tones: [2,0], translation: 'друг', hsk: 1, tags: ['noun'] },
-  { id: 'h1_065', hanzi: '老师', pinyin: 'lǎoshī', tones: [3,1], translation: 'учитель', hsk: 1, tags: ['occupation'] },
-  { id: 'h1_066', hanzi: '学生', pinyin: 'xuésheng', tones: [2,0], translation: 'студент, ученик', hsk: 1, tags: ['occupation'] },
-  { id: 'h1_067', hanzi: '家', pinyin: 'jiā', tones: [1], translation: 'дом, семья', hsk: 1, tags: ['noun'], radical: '宀', mnemonic: 'крыша над свиньёй = дом' },
-  { id: 'h1_068', hanzi: '学校', pinyin: 'xuéxiào', tones: [2,4], translation: 'школа', hsk: 1, tags: ['place'] },
-  { id: 'h1_069', hanzi: '饭店', pinyin: 'fàndiàn', tones: [4,4], translation: 'ресторан; отель', hsk: 1, tags: ['place'] },
-  { id: 'h1_070', hanzi: '医院', pinyin: 'yīyuàn', tones: [1,4], translation: 'больница', hsk: 1, tags: ['place'] },
-  { id: 'h1_071', hanzi: '车', pinyin: 'chē', tones: [1], translation: 'машина; транспорт', hsk: 1, tags: ['transport'], radical: '车' },
-  { id: 'h1_072', hanzi: '书', pinyin: 'shū', tones: [1], translation: 'книга', hsk: 1, tags: ['noun'] },
-  { id: 'h1_073', hanzi: '钱', pinyin: 'qián', tones: [2], translation: 'деньги', hsk: 1, tags: ['noun'] },
-  { id: 'h1_074', hanzi: '水', pinyin: 'shuǐ', tones: [3], translation: 'вода', hsk: 1, tags: ['food'], radical: '水', mnemonic: 'три волны = вода' },
-  { id: 'h1_075', hanzi: '茶', pinyin: 'chá', tones: [2], translation: 'чай', hsk: 1, tags: ['food'] },
-  { id: 'h1_076', hanzi: '饭', pinyin: 'fàn', tones: [4], translation: 'рис; еда', hsk: 1, tags: ['food'] },
-  { id: 'h1_077', hanzi: '苹果', pinyin: 'píngguǒ', tones: [2,3], translation: 'яблоко', hsk: 1, tags: ['food'] },
-  { id: 'h1_078', hanzi: '猫', pinyin: 'māo', tones: [1], translation: 'кошка', hsk: 1, tags: ['animal'] },
-  { id: 'h1_079', hanzi: '狗', pinyin: 'gǒu', tones: [3], translation: 'собака', hsk: 1, tags: ['animal'] },
-  { id: 'h1_080', hanzi: '名字', pinyin: 'míngzi', tones: [2,0], translation: 'имя', hsk: 1, tags: ['noun'] },
-  // Прилагательные и наречия
-  { id: 'h1_081', hanzi: '好', pinyin: 'hǎo', tones: [3], translation: 'хороший', hsk: 1, tags: ['adj'] },
-  { id: 'h1_082', hanzi: '大', pinyin: 'dà', tones: [4], translation: 'большой', hsk: 1, tags: ['adj'] },
-  { id: 'h1_083', hanzi: '小', pinyin: 'xiǎo', tones: [3], translation: 'маленький', hsk: 1, tags: ['adj'] },
-  { id: 'h1_084', hanzi: '多', pinyin: 'duō', tones: [1], translation: 'много', hsk: 1, tags: ['adj'] },
-  { id: 'h1_085', hanzi: '少', pinyin: 'shǎo', tones: [3], translation: 'мало', hsk: 1, tags: ['adj'] },
-  { id: 'h1_086', hanzi: '高兴', pinyin: 'gāoxìng', tones: [1,4], translation: 'радостный', hsk: 1, tags: ['adj'] },
-  { id: 'h1_087', hanzi: '不', pinyin: 'bù', tones: [4], translation: 'не, нет', hsk: 1, tags: ['particle'] },
-  { id: 'h1_088', hanzi: '很', pinyin: 'hěn', tones: [3], translation: 'очень', hsk: 1, tags: ['adv'] },
-  { id: 'h1_089', hanzi: '也', pinyin: 'yě', tones: [3], translation: 'тоже', hsk: 1, tags: ['adv'] },
-  { id: 'h1_090', hanzi: '都', pinyin: 'dōu', tones: [1], translation: 'все, всё', hsk: 1, tags: ['adv'] },
-  { id: 'h1_091', hanzi: '的', pinyin: 'de', tones: [0], translation: 'притяжательная частица', hsk: 1, tags: ['particle'] },
-  { id: 'h1_092', hanzi: '了', pinyin: 'le', tones: [0], translation: 'частица завершённости', hsk: 1, tags: ['particle'] },
-  { id: 'h1_093', hanzi: '吗', pinyin: 'ma', tones: [0], translation: 'вопросительная частица', hsk: 1, tags: ['particle'] },
-  { id: 'h1_094', hanzi: '什么', pinyin: 'shénme', tones: [2,0], translation: 'что; какой', hsk: 1, tags: ['question'] },
-  { id: 'h1_095', hanzi: '哪', pinyin: 'nǎ', tones: [3], translation: 'какой; где', hsk: 1, tags: ['question'] },
-  { id: 'h1_096', hanzi: '哪儿', pinyin: 'nǎr', tones: [3], translation: 'где', hsk: 1, tags: ['question'] },
-  { id: 'h1_097', hanzi: '怎么', pinyin: 'zěnme', tones: [3,0], translation: 'как', hsk: 1, tags: ['question'] },
-  { id: 'h1_098', hanzi: '多少', pinyin: 'duōshao', tones: [1,0], translation: 'сколько', hsk: 1, tags: ['question'] },
-  { id: 'h1_099', hanzi: '几', pinyin: 'jǐ', tones: [3], translation: 'сколько (до 10)', hsk: 1, tags: ['question'] },
-  { id: 'h1_100', hanzi: '这', pinyin: 'zhè', tones: [4], translation: 'это, этот', hsk: 1, tags: ['pronoun'] },
-  { id: 'h1_101', hanzi: '那', pinyin: 'nà', tones: [4], translation: 'то, тот', hsk: 1, tags: ['pronoun'] },
+  // ═══════════════ HSK 1 (80 слов из src/data/hsk1.ts) ═══════════════
+  ...HSK1_WORDS,
 
   // ═══════════════ HSK 2 ═══════════════
   // Семья
