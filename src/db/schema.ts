@@ -1,4 +1,4 @@
-// Схема IndexedDB с Dexie (local-first) — v2/v3 + инициализация 80 слов HSK1
+// Схема IndexedDB с Dexie (local-first) — поддержка программ HSK 2.0 / 3.0 и расширенного словаря
 
 import Dexie, { type Table } from 'dexie';
 import { HSK1_WORDS } from '../data/hsk1';
@@ -23,7 +23,7 @@ export interface Card {
 }
 
 export interface CardState {
-  id: string;        // = wordId из dictionary / hsk1
+  id: string;
   cardId?: string;
   due: Date;
   stability: number;
@@ -36,7 +36,7 @@ export interface CardState {
 }
 
 export interface Favorite {
-  id: string;        // = wordId
+  id: string;
   addedAt: Date;
   note?: string;
 }
@@ -63,11 +63,15 @@ export interface Settings {
   id: string;
   theme: 'light' | 'dark' | 'auto';
   soundEnabled: boolean;
-  autoSpeak: boolean;       // авто-озвучка карточки
+  autoSpeak: boolean;
   mascotEnabled: boolean;
   dailyGoal: number;
   newCardsPerDay: number;
-  currentHsk: 1 | 2 | 3 | 4;
+  currentHsk: 1 | 2 | 3 | 4 | 5 | 6;
+  /** Программа, по которой пользователь учился раньше или учится сейчас */
+  learningProgram: 'hsk-2.0' | 'hsk-3.0' | 'from-scratch';
+  /** Уровень, с которого начинать (для онбординга) */
+  startingLevel: 1 | 2 | 3 | 4 | 5 | 6;
   language: string;
   updatedAt: Date;
 }
@@ -83,7 +87,6 @@ export interface Note {
 
 export type WordLearningStatus = 'new' | 'learning' | 'mastered';
 
-/** Определяет статус изучения карточки на основе параметров FSRS */
 export function getWordLearningStatus(state?: CardState | null): WordLearningStatus {
   if (!state || state.deleted || state.reviews === 0) {
     return 'new';
@@ -100,9 +103,11 @@ export const DEFAULT_APP_SETTINGS: Settings = {
   soundEnabled: true,
   autoSpeak: true,
   mascotEnabled: true,
-  dailyGoal: 10,
-  newCardsPerDay: 10,
+  dailyGoal: 15,
+  newCardsPerDay: 15,
   currentHsk: 1,
+  learningProgram: 'hsk-3.0',
+  startingLevel: 1,
   language: 'ru',
   updatedAt: new Date(),
 };
@@ -137,13 +142,17 @@ export class HanLabDatabase extends Dexie {
         toneAttempts: 'id, hanzi, timestamp',
         settings: 'id',
         notes: 'id, cardId, createdAt, updatedAt, deleted',
-      })
-      .upgrade(async (tx) => {
-        try {
-          await tx.table('cardStates').toArray();
-        } catch {
-          // нет данных — ок
-        }
+      });
+
+    this.version(4)
+      .stores({
+        cards: 'id, hanzi, level, category, updatedAt',
+        cardStates: 'id, due, updatedAt, deleted',
+        favorites: 'id, addedAt',
+        reviews: 'id, cardId, timestamp',
+        toneAttempts: 'id, hanzi, timestamp',
+        settings: 'id',
+        notes: 'id, cardId, createdAt, updatedAt, deleted',
       });
   }
 }
@@ -152,12 +161,6 @@ export const db = new HanLabDatabase();
 
 let initPromise: Promise<void> | null = null;
 
-/**
- * Инициализирует IndexedDB при первом запуске:
- * - Загружает все 80 слов HSK1 в таблицу cards и создаёт начальные состояния cardStates.
- * - Гарантирует отсутствие повторной загрузки одинаковых слов и сохранение прогресса.
- * - Создаёт настройки по умолчанию.
- */
 export function initializeDatabase(): Promise<void> {
   if (initPromise) return initPromise;
 
@@ -165,25 +168,30 @@ export function initializeDatabase(): Promise<void> {
     try {
       await db.open();
 
-      const validDictIds = new Set(DICTIONARY.map((w) => w.id));
-
       await db.transaction('rw', [db.cards, db.cardStates, db.settings], async () => {
-        // 1. Настройки по умолчанию
-        const existingSettings = await db.settings.get('main');
-        if (!existingSettings) {
-          await db.settings.put({
-            ...DEFAULT_APP_SETTINGS,
-            updatedAt: new Date(),
-          });
+        let settings = await db.settings.get('main');
+        if (!settings) {
+          settings = { ...DEFAULT_APP_SETTINGS, updatedAt: new Date() };
+          await db.settings.put(settings);
+        } else {
+          // Миграция старых настроек
+          if (!(settings as any).learningProgram) {
+            (settings as any).learningProgram = 'hsk-3.0';
+            (settings as any).startingLevel = (settings as any).currentHsk || 1;
+            await db.settings.put(settings as Settings);
+          }
         }
 
-        // 2. Синхронизируем 80 слов HSK1 в таблицу cards без дублирования
+        const maxLevel = Math.max(2, settings.currentHsk || 1);
+
         const existingCards = await db.cards.toArray();
         const existingCardIds = new Set(existingCards.map((c) => c.id));
         const now = new Date();
 
+        const wordsToLoad = DICTIONARY.filter((w) => w.hsk <= maxLevel);
+
         const newCards: Card[] = [];
-        for (const w of HSK1_WORDS) {
+        for (const w of wordsToLoad) {
           if (!existingCardIds.has(w.id)) {
             newCards.push({
               id: w.id,
@@ -208,25 +216,11 @@ export function initializeDatabase(): Promise<void> {
           await db.cards.bulkPut(newCards);
         }
 
-        // 3. Проверяем cardStates: удаляем неактуальные ID и добавляем недостающие из 80 слов HSK1
         const existingStates = await db.cardStates.toArray();
-        const existingStateIds = new Set<string>();
-        const staleStateIds: string[] = [];
-
-        for (const st of existingStates) {
-          if (!validDictIds.has(st.id)) {
-            staleStateIds.push(st.id);
-          } else {
-            existingStateIds.add(st.id);
-          }
-        }
-
-        if (staleStateIds.length > 0) {
-          await db.cardStates.bulkDelete(staleStateIds);
-        }
+        const existingStateIds = new Set(existingStates.map((s) => s.id));
 
         const statesToAdd: CardState[] = [];
-        for (const w of HSK1_WORDS) {
+        for (const w of wordsToLoad) {
           if (!existingStateIds.has(w.id)) {
             statesToAdd.push({
               id: w.id,
@@ -255,16 +249,19 @@ export function initializeDatabase(): Promise<void> {
   return initPromise;
 }
 
-/** Сбрасывает весь учебный прогресс пользователя и восстанавливает 80 начальных карточек HSK1 */
 export async function resetAllProgress(): Promise<void> {
   const now = new Date();
+  const settings = await db.settings.get('main');
+  const maxLevel = Math.max(2, settings?.currentHsk || 1);
+  const wordsToLoad = DICTIONARY.filter((w) => w.hsk <= maxLevel);
+
   await db.transaction('rw', [db.cardStates, db.reviews, db.toneAttempts, db.notes], async () => {
     await db.reviews.clear();
     await db.toneAttempts.clear();
     await db.notes.clear();
     await db.cardStates.clear();
 
-    const initialStates: CardState[] = HSK1_WORDS.map((w) => ({
+    const initialStates: CardState[] = wordsToLoad.map((w) => ({
       id: w.id,
       cardId: w.id,
       due: now,
@@ -279,4 +276,3 @@ export async function resetAllProgress(): Promise<void> {
     await db.cardStates.bulkPut(initialStates);
   });
 }
-
