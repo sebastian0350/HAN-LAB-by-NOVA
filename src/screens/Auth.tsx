@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Mascot } from '../components/Mascot';
+import { db } from '../db/schema';
 
 type AuthMode = 'login' | 'register';
+
+type LearningProgram = 'hsk-2.0' | 'hsk-3.0' | 'from-scratch';
 
 export const Auth: React.FC<{
   onBack: () => void;
@@ -15,6 +18,8 @@ export const Auth: React.FC<{
   const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [ageConsent, setAgeConsent] = useState(false);
+  const [learningProgram, setLearningProgram] = useState<LearningProgram>('hsk-3.0');
+  const [startingLevel, setStartingLevel] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,6 +27,30 @@ export const Auth: React.FC<{
   const { signIn, signUp, signInWithMagicLink, resetPassword } = useAuth();
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const saveOnboardingSettings = async () => {
+    try {
+      const existing = await db.settings.get('main');
+      await db.settings.put({
+        ...(existing || {
+          id: 'main',
+          theme: 'light',
+          soundEnabled: true,
+          autoSpeak: true,
+          mascotEnabled: true,
+          dailyGoal: 15,
+          newCardsPerDay: 15,
+          language: 'ru',
+        }),
+        currentHsk: startingLevel,
+        startingLevel,
+        learningProgram,
+        updatedAt: new Date(),
+      } as any);
+    } catch (e) {
+      console.warn('Failed to save onboarding settings', e);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,8 +80,13 @@ export const Auth: React.FC<{
     setLoading(true);
     try {
       if (mode === 'register') {
-        const result = await signUp(email, password, displayName || undefined);
-        // Supabase: если email confirmation включён — user идёт, но session нет
+        const result = await signUp(email, password, displayName || undefined, {
+          learning_program: learningProgram,
+          starting_level: startingLevel,
+        });
+
+        await saveOnboardingSettings();
+
         if (result && !result.session) {
           setInfo('Аккаунт создан! Проверьте почту для подтверждения.');
           return;
@@ -72,6 +106,11 @@ export const Auth: React.FC<{
         setError('Слишком много попыток. Подождите немного.');
       } else if (msg.includes('Email not confirmed')) {
         setError('E-mail не подтверждён. Проверьте почту.');
+      } else if (msg.includes('не настроена') || msg.includes('not configured') || msg.includes('credentials')) {
+        // Fallback: даже если Supabase не работает — сохраняем настройки и пускаем как гостя с онбордингом
+        await saveOnboardingSettings();
+        setInfo('Облачная синхронизация пока недоступна. Продолжаем в локальном режиме с выбранными настройками.');
+        setTimeout(() => onSuccess('guest'), 1200);
       } else {
         setError(msg || 'Произошла ошибка. Попробуйте позже.');
       }
@@ -137,7 +176,7 @@ export const Auth: React.FC<{
       <p style={{ textAlign: 'center', color: 'var(--ink-2)', fontSize: 'var(--text-sm)', marginBottom: 'var(--sp-5)' }}>
         {mode === 'login'
           ? 'Твой прогресс и избранные слова ждут тебя'
-          : 'Синхронизация прогресса между устройствами'}
+          : 'Синхронизация прогресса + персональный путь обучения'}
       </p>
 
       <div className="card" style={{ marginBottom: 'var(--sp-4)' }}>
@@ -212,6 +251,78 @@ export const Auth: React.FC<{
                   autoComplete="new-password"
                   placeholder="••••••••"
                 />
+              </div>
+
+              {/* Выбор программы */}
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontSize: 'var(--text-sm)', color: 'var(--ink-2)', fontWeight: 500 }}>
+                  По какой программе ты учился / учишься?
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {([
+                    { id: 'hsk-3.0', title: 'HSK 3.0 (актуальная)', desc: 'Новая программа 2021–2026, 9 уровней' },
+                    { id: 'hsk-2.0', title: 'HSK 2.0 (классическая)', desc: 'Старая программа до 2021, 6 уровней' },
+                    { id: 'from-scratch', title: 'С нуля / не знаю', desc: 'Начинаю с самого начала' },
+                  ] as const).map((opt) => (
+                    <label
+                      key={opt.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 10,
+                        padding: '12px 14px',
+                        borderRadius: 'var(--r-md)',
+                        border: learningProgram === opt.id ? '2px solid var(--bamboo)' : '1.5px solid var(--line)',
+                        background: learningProgram === opt.id ? 'var(--bamboo-soft)' : 'var(--paper)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="program"
+                        value={opt.id}
+                        checked={learningProgram === opt.id}
+                        onChange={() => setLearningProgram(opt.id)}
+                        style={{ width: 'auto', marginTop: 3 }}
+                      />
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{opt.title}</div>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginTop: 2 }}>{opt.desc}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Выбор уровня */}
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontSize: 'var(--text-sm)', color: 'var(--ink-2)', fontWeight: 500 }}>
+                  Твой текущий / стартовый уровень
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {([1, 2, 3, 4, 5, 6] as const).map((lvl) => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setStartingLevel(lvl)}
+                      style={{
+                        padding: '10px 0',
+                        borderRadius: 'var(--r-md)',
+                        border: startingLevel === lvl ? '2px solid var(--bamboo)' : '1.5px solid var(--line)',
+                        background: startingLevel === lvl ? 'var(--bamboo)' : 'var(--paper)',
+                        color: startingLevel === lvl ? 'white' : 'var(--ink)',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      HSK {lvl}
+                    </button>
+                  ))}
+                </div>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginTop: 8 }}>
+                  Если сомневаешься — выбери HSK 1. Потом можно изменить в профиле.
+                </p>
               </div>
 
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 'var(--text-xs)', color: 'var(--ink-2)', cursor: 'pointer' }}>
