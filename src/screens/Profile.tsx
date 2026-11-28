@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LogOut,
   Moon,
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useProgress } from '../hooks/useProgress';
-import { db, initializeDatabase } from '../db/schema';
+import { db, initializeDatabase, type Settings } from '../db/schema';
 
 function Row({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
   return (
@@ -54,14 +54,19 @@ export const Profile: React.FC = () => {
   const { user, signOut, isGuest } = useAuth();
   const { refresh } = useProgress();
 
-  const [settings, setSettings] = useState({
-    theme: 'light' as 'light' | 'dark' | 'auto',
+  const [settings, setSettings] = useState<Settings>({
+    id: 'main',
+    theme: 'light',
     soundEnabled: true,
     autoSpeak: true,
     mascotEnabled: true,
-    dailyGoal: 10,
-    newCardsPerDay: 10,
-    currentHsk: 1 as 1 | 2 | 3 | 4,
+    dailyGoal: 15,
+    newCardsPerDay: 15,
+    currentHsk: 1,
+    learningProgram: 'hsk-3.0',
+    startingLevel: 1,
+    language: 'ru',
+    updatedAt: new Date(),
   });
   const [saved, setSaved] = useState(false);
 
@@ -69,15 +74,30 @@ export const Profile: React.FC = () => {
     initializeDatabase()
       .then(() => db.settings.get('main'))
       .then((s) => {
-        if (s) setSettings((prev) => ({ ...prev, ...s }));
+        if (s) {
+          setSettings({
+            id: 'main',
+            theme: s.theme ?? 'light',
+            soundEnabled: s.soundEnabled ?? true,
+            autoSpeak: s.autoSpeak ?? true,
+            mascotEnabled: s.mascotEnabled ?? true,
+            dailyGoal: s.dailyGoal ?? 15,
+            newCardsPerDay: s.newCardsPerDay ?? 15,
+            currentHsk: (s.currentHsk as 1 | 2 | 3 | 4 | 5 | 6) ?? 1,
+            learningProgram: (s as any).learningProgram ?? 'hsk-3.0',
+            startingLevel: (s as any).startingLevel ?? 1,
+            language: s.language ?? 'ru',
+            updatedAt: s.updatedAt ?? new Date(),
+          });
+        }
       })
       .catch(console.error);
   }, []);
 
-  const updateSetting = async <K extends keyof typeof settings>(key: K, value: (typeof settings)[K]) => {
-    const next = { ...settings, [key]: value };
+  const updateSetting = async <K extends keyof Settings>(key: K, value: Settings[K]) => {
+    const next: Settings = { ...settings, [key]: value, updatedAt: new Date() };
     setSettings(next);
-    await db.settings.put({ id: 'main', ...next, language: 'ru', updatedAt: new Date() });
+    await db.settings.put(next);
 
     if (key === 'theme') {
       if (value === 'dark') {
@@ -93,7 +113,6 @@ export const Profile: React.FC = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
-
 
   const handleSignOut = async () => {
     try {
@@ -142,8 +161,8 @@ export const Profile: React.FC = () => {
         <div style={{ marginBottom: 'var(--sp-3)' }}>
           <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--ink-2)' }}>Мой уровень HSK</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-          {([1, 2, 3, 4] as const).map((level) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          {([1, 2, 3, 4, 5, 6] as const).map((level) => (
             <button
               key={level}
               onClick={() => updateSetting('currentHsk', level)}
@@ -159,6 +178,39 @@ export const Profile: React.FC = () => {
               }}
             >
               <span>HSK {level}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Программа обучения */}
+      <div className="card-paper" style={{ marginBottom: 'var(--sp-4)' }}>
+        <div style={{ marginBottom: 'var(--sp-3)' }}>
+          <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--ink-2)' }}>Программа обучения</span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {([
+            { id: 'hsk-3.0' as const, title: 'HSK 3.0 (актуальная)' },
+            { id: 'hsk-2.0' as const, title: 'HSK 2.0 (классическая)' },
+            { id: 'from-scratch' as const, title: 'С нуля' },
+          ]).map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => updateSetting('learningProgram', opt.id)}
+              style={{
+                padding: '10px 14px',
+                borderRadius: 'var(--r-md)',
+                border: settings.learningProgram === opt.id ? '2px solid var(--bamboo)' : '1.5px solid var(--line)',
+                background: settings.learningProgram === opt.id ? 'var(--bamboo-soft)' : 'var(--paper)',
+                color: 'var(--ink)',
+                fontWeight: 600,
+                fontSize: 'var(--text-sm)',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              {opt.title}
             </button>
           ))}
         </div>
