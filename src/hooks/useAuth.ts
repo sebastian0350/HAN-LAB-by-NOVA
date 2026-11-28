@@ -52,15 +52,22 @@ export function useAuth() {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, displayName?: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    displayName?: string,
+    meta?: { learning_program?: string; starting_level?: number }
+  ) => {
     if (!supabase) throw new Error('Облачная синхронизация не настроена. Используйте локальный режим.');
-    
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           display_name: displayName,
+          learning_program: meta?.learning_program ?? 'hsk-3.0',
+          starting_level: meta?.starting_level ?? 1,
         },
       },
     });
@@ -71,7 +78,7 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) throw new Error('Облачная синхронизация не настроена. Используйте локальный режим.');
-    
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -83,7 +90,7 @@ export function useAuth() {
 
   const signInWithMagicLink = async (email: string) => {
     if (!supabase) throw new Error('Облачная синхронизация не настроена. Используйте локальный режим.');
-    
+
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
     });
@@ -94,14 +101,14 @@ export function useAuth() {
 
   const signOut = async () => {
     if (!supabase) return;
-    
+
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
 
   const resetPassword = async (email: string) => {
     if (!supabase) throw new Error('Облачная синхронизация не настроена.');
-    
+
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) throw error;
   };
@@ -117,4 +124,3 @@ export function useAuth() {
     resetPassword,
   };
 }
-
