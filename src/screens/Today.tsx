@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Mic, BookOpen, TrendingUp, Clock, CheckCircle2, Sparkles } from 'lucide-react';
+import { Layers, Mic, BookOpen, TrendingUp, Clock, CheckCircle2, Sparkles, Gamepad2 } from 'lucide-react';
 import { useProgress } from '../hooks/useProgress';
 import { Mascot } from '../components/Mascot';
 import type { TabId } from '../context/AppContext';
@@ -217,6 +217,18 @@ export const Today: React.FC<TodayProps> = ({ onTabChange }) => {
         >
           <Mic size={18} />
           Тренировка китайских тонов
+        </button>
+        <button
+          type="button"
+          className="btn btn-ghost btn-full"
+          onClick={() => onTabChange('games')}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            color: 'var(--seal)', border: '1.5px solid rgba(163,31,24,0.25)', background: 'var(--seal-soft)',
+          }}
+        >
+          <Gamepad2 size={18} />
+          Мини-игры (сопоставление, тоны)
         </button>
       </div>
     </div>

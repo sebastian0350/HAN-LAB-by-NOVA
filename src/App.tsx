@@ -6,6 +6,7 @@ import { Path } from './screens/Path';
 import { Tones } from './screens/Tones';
 import { Review } from './screens/Review';
 import { Profile } from './screens/Profile';
+import { Games } from './screens/Games';
 import { useAuth } from './hooks/useAuth';
 import { db, initializeDatabase } from './db/schema';
 import type { TabId } from './context/AppContext';
@@ -59,6 +60,7 @@ function App() {
       case 'path':    return <Path onTabChange={setCurrentTab} />;
       case 'tones':   return <Tones />;
       case 'review':  return <Review onTabChange={setCurrentTab} />;
+      case 'games':   return <Games />;
       case 'profile': return <Profile />;
     }
   };

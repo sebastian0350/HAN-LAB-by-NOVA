@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, Mic, Layers, User } from 'lucide-react';
+import { Home, BookOpen, Mic, Layers, Gamepad2 } from 'lucide-react';
 import type { TabId } from '../context/AppContext';
 
 interface NavigationProps {
@@ -7,12 +7,12 @@ interface NavigationProps {
   onTabChange: (tab: TabId) => void;
 }
 
-const TABS: { id: TabId; label: string; Icon: typeof Home; char?: string }[] = [
-  { id: 'today',   label: 'Главная', Icon: Home   },
-  { id: 'path',    label: 'Словарь', Icon: BookOpen },
-  { id: 'tones',   label: 'Тоны',    Icon: Mic    },
-  { id: 'review',  label: 'Учить',   Icon: Layers  },
-  { id: 'profile', label: 'Профиль', Icon: User   },
+const TABS: { id: TabId; label: string; Icon: typeof Home }[] = [
+  { id: 'today',   label: 'Главная', Icon: Home      },
+  { id: 'path',    label: 'Словарь', Icon: BookOpen  },
+  { id: 'games',   label: 'Игры',    Icon: Gamepad2  },
+  { id: 'tones',   label: 'Тоны',    Icon: Mic       },
+  { id: 'review',  label: 'Учить',   Icon: Layers    },
 ];
 
 export const Navigation: React.FC<NavigationProps> = ({ currentTab, onTabChange }) => (

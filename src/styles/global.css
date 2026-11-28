@@ -396,10 +396,55 @@ input:focus {
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-8px); } }
 @keyframes popIn   { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes pulse   { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); } 70% { transform: scale(0.95); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes correctFlash { 0% { background: var(--bamboo-soft); } 50% { background: rgba(47,92,58,0.25); } 100% { background: var(--bamboo-soft); } }
+@keyframes wrongShake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
 
-.anim-fadein  { animation: fadeIn  0.3s ease both; }
-.anim-popin   { animation: popIn   0.25s cubic-bezier(0.4,0,0.2,1) both; }
-.anim-pulse   { animation: pulse 1.5s ease infinite; }
+.anim-fadein   { animation: fadeIn   0.3s ease both; }
+.anim-slideup  { animation: slideUp  0.35s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-popin    { animation: popIn    0.25s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-bouncein { animation: bounceIn 0.5s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-pulse    { animation: pulse 1.5s ease infinite; }
+.anim-correct  { animation: correctFlash 0.4s ease; }
+.anim-wrong    { animation: wrongShake 0.4s ease; }
+
+/* ── Игровые карточки ── */
+.game-card {
+  border-radius: var(--r-md);
+  border: 2px solid var(--line);
+  background: var(--card-bg);
+  transition: all var(--t-fast);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.game-card:hover:not(:disabled) {
+  border-color: var(--bamboo);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--bamboo-glow);
+}
+.game-card.selected {
+  border-color: var(--bamboo);
+  background: var(--bamboo-soft);
+  transform: scale(1.03);
+}
+.game-card.correct {
+  border-color: var(--bamboo);
+  background: var(--bamboo-soft);
+  color: var(--bamboo);
+}
+.game-card.wrong {
+  border-color: var(--seal);
+  background: var(--seal-soft);
+  color: var(--seal);
+  animation: wrongShake 0.4s ease;
+}
+.game-card.matched {
+  opacity: 0.55;
+  cursor: default;
+  border-color: var(--bamboo);
+}
 
 /* ── Скроллбар ── */
 ::-webkit-scrollbar { width: 4px; }

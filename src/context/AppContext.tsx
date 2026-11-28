@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-export type TabId = 'today' | 'path' | 'tones' | 'review' | 'profile';
+export type TabId = 'today' | 'path' | 'tones' | 'review' | 'games' | 'profile';
 export type AuthScreenMode = 'login' | 'register';
 
 export interface AppContextValue {

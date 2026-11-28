@@ -33,37 +33,67 @@ export const Welcome: React.FC<{ onStart: (mode: 'guest' | 'authenticated') => v
       <div style={{
         position: 'absolute', top: -60, right: -40,
         width: 300, height: 300,
-        background: 'radial-gradient(ellipse, rgba(61,107,72,0.10) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(61,107,72,0.12) 0%, transparent 70%)',
         borderRadius: '50%', pointerEvents: 'none',
       }} />
       <div style={{
         position: 'absolute', bottom: 100, left: -60,
         width: 250, height: 250,
-        background: 'radial-gradient(ellipse, rgba(181,40,30,0.07) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(181,40,30,0.08) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', top: '40%', left: -40,
+        width: 200, height: 200,
+        background: 'radial-gradient(ellipse, rgba(196,146,46,0.08) 0%, transparent 70%)',
         borderRadius: '50%', pointerEvents: 'none',
       }} />
 
       {/* Печать */}
-      <div className="seal-stamp" style={{ marginBottom: 16 }}>汉</div>
+      <div className="seal-stamp" style={{ marginBottom: 20 }}>汉</div>
 
       {/* Панда */}
-      <div className="anim-popin" style={{ marginBottom: 8 }}>
+      <div className="anim-popin" style={{ marginBottom: 12 }}>
         <Mascot state="hello" size={160} />
       </div>
 
       {/* Цитата */}
-      <div className="page-kicker" style={{ marginBottom: 8, fontSize: 12 }}>學而時習之，不亦說乎</div>
+      <div className="page-kicker" style={{ marginBottom: 10, fontSize: 11, textAlign: 'center' }}>
+        學而時習之，不亦說乎
+      </div>
 
       {/* Заголовок */}
-      <h1 style={{ fontSize: 42, textAlign: 'center', marginBottom: 6, fontFamily: 'var(--font-serif)' }}>
+      <h1 style={{ fontSize: 44, textAlign: 'center', marginBottom: 4, fontFamily: 'var(--font-serif)', letterSpacing: '-0.02em' }}>
         Хань-Лаб
       </h1>
-      <p style={{ color: 'var(--gold)', fontFamily: 'var(--font-serif)', marginBottom: 6, fontSize: 'var(--text-sm)', letterSpacing: '0.08em' }}>
+      <p style={{ color: 'var(--gold)', fontFamily: 'var(--font-serif)', marginBottom: 8, fontSize: 'var(--text-sm)', letterSpacing: '0.12em' }}>
         by Nova
       </p>
-      <p style={{ color: 'var(--ink-2)', textAlign: 'center', maxWidth: 300, marginBottom: 36, fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
+      <p style={{ color: 'var(--ink-2)', textAlign: 'center', maxWidth: 300, marginBottom: 32, fontSize: 'var(--text-sm)', lineHeight: 1.75 }}>
         Научись китайскому через карточки, тоны и умное повторение. Без скуки — как чай.
       </p>
+
+      {/* Фичи */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', maxWidth: 340, marginBottom: 28 }}>
+        {[
+          { emoji: '🃏', title: 'FSRS карточки', desc: 'Умный алгоритм' },
+          { emoji: '🎵', title: 'Тоны', desc: 'Анализ голоса' },
+          { emoji: '🎮', title: 'Мини-игры', desc: 'Duolingo-стиль' },
+          { emoji: '📚', title: 'HSK 1–4', desc: '393 слова' },
+        ].map((f) => (
+          <div key={f.title} style={{
+            background: 'var(--paper-2)',
+            border: '1px solid var(--line)',
+            borderRadius: 'var(--r-md)',
+            padding: '12px 10px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: 24, marginBottom: 4 }}>{f.emoji}</div>
+            <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--ink)' }}>{f.title}</div>
+            <div style={{ fontSize: 10, color: 'var(--ink-3)', marginTop: 2 }}>{f.desc}</div>
+          </div>
+        ))}
+      </div>
 
       {/* Кнопки */}
       <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -87,12 +117,12 @@ export const Welcome: React.FC<{ onStart: (mode: 'guest' | 'authenticated') => v
 
       {/* Декоративные иероглифы внизу */}
       <div style={{
-        display: 'flex', gap: 16, marginTop: 32,
+        display: 'flex', gap: 16, marginTop: 28,
         fontSize: 'var(--text-xl)', color: 'var(--ink-4)',
         fontFamily: 'var(--font-serif)',
       }}>
         {['中', '文', '汉', '字', '学'].map((c) => (
-          <span key={c} style={{ opacity: 0.4 }}>{c}</span>
+          <span key={c} style={{ opacity: 0.35 }}>{c}</span>
         ))}
       </div>
     </div>
