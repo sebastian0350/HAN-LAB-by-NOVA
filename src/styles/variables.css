@@ -1,51 +1,51 @@
 :root {
-  /* ── Акварельная палитра ── */
-  --paper:    #faf5ec;
-  --paper-2:  #f4ede0;
-  --paper-3:  #eddfcc;
-  --paper-4:  #e5d1b8;
-  --card-bg:  #ffffff;
+  /* ── Акварельная палитра (усиленная китайская эстетика) ── */
+  --paper:    #f8f1e3;
+  --paper-2:  #f2e8d5;
+  --paper-3:  #e8d9c0;
+  --paper-4:  #dcc9a8;
+  --card-bg:  #fffdf8;
 
-  --ink:      #1a1710;
-  --ink-2:    #56514a;
-  --ink-3:    #8c8678;
-  --ink-4:    #b5afa5;
+  --ink:      #1c1810;
+  --ink-2:    #4f4a40;
+  --ink-3:    #857e70;
+  --ink-4:    #b0a99a;
 
-  --line:     #d8cdb8;
-  --line-2:   #e8dece;
+  --line:     #d4c6ae;
+  --line-2:   #e6dcc8;
 
-  /* Бамбук (зелёный) */
-  --bamboo:        #3d6b48;
-  --bamboo-dark:   #2a4d33;
-  --bamboo-mid:    #5a9168;
-  --bamboo-light:  #8abb96;
-  --bamboo-soft:   rgba(61, 107, 72, 0.10);
-  --bamboo-glow:   rgba(61, 107, 72, 0.18);
+  /* Бамбук (зелёный) — более глубокий и благородный */
+  --bamboo:        #2f5c3a;
+  --bamboo-dark:   #1e3d27;
+  --bamboo-mid:    #4a7d58;
+  --bamboo-light:  #7aaf88;
+  --bamboo-soft:   rgba(47, 92, 58, 0.11);
+  --bamboo-glow:   rgba(47, 92, 58, 0.20);
 
-  /* Печать (красный) */
-  --seal:      #b5281e;
-  --seal-mid:  #d44036;
-  --seal-soft: rgba(181, 40, 30, 0.10);
-  --seal-glow: rgba(181, 40, 30, 0.18);
+  /* Печать (красный киноварь) */
+  --seal:      #a31f18;
+  --seal-mid:  #c43a32;
+  --seal-soft: rgba(163, 31, 24, 0.11);
+  --seal-glow: rgba(163, 31, 24, 0.20);
 
-  /* Золото */
-  --gold:      #b8863a;
-  --gold-soft: rgba(184, 134, 58, 0.14);
-  --gold-glow: rgba(184, 134, 58, 0.24);
+  /* Золото — тёплое, чуть более насыщенное */
+  --gold:      #c4922e;
+  --gold-soft: rgba(196, 146, 46, 0.14);
+  --gold-glow: rgba(196, 146, 46, 0.26);
 
   /* Тоны */
-  --tone-1: #2f5f8a;   /* 1-й тон: синий — ровный */
-  --tone-2: #3d6b48;   /* 2-й тон: зелёный — восходящий */
-  --tone-3: #7a4e96;   /* 3-й тон: фиолетовый — падающий-восходящий */
-  --tone-4: #b5281e;   /* 4-й тон: красный — нисходящий */
-  --tone-0: #8c8678;   /* нейтральный */
-  --tone-neutral: #8c8678;
+  --tone-1: #2a5680;   /* 1-й тон: синий — ровный */
+  --tone-2: #2f5c3a;   /* 2-й тон: зелёный — восходящий */
+  --tone-3: #6f4590;   /* 3-й тон: фиолетовый — падающий-восходящий */
+  --tone-4: #a31f18;   /* 4-й тон: красный — нисходящий */
+  --tone-0: #857e70;   /* нейтральный */
+  --tone-neutral: #857e70;
 
-  --tone-1-soft: rgba(47, 95, 138, 0.12);
-  --tone-2-soft: rgba(61, 107, 72, 0.12);
-  --tone-3-soft: rgba(122, 78, 150, 0.12);
-  --tone-4-soft: rgba(181, 40, 30, 0.12);
-  --tone-0-soft: rgba(140, 134, 120, 0.14);
+  --tone-1-soft: rgba(42, 86, 128, 0.13);
+  --tone-2-soft: rgba(47, 92, 58, 0.13);
+  --tone-3-soft: rgba(111, 69, 144, 0.13);
+  --tone-4-soft: rgba(163, 31, 24, 0.13);
+  --tone-0-soft: rgba(133, 126, 112, 0.14);
 
   /* ── Радиусы ── */
   --r-xs:   6px;
@@ -83,11 +83,11 @@
   --text-hanzi-lg: 96px;
 
   /* ── Тени ── */
-  --shadow-xs: 0 1px 3px rgba(26,23,16,0.06);
-  --shadow-sm: 0 2px 8px rgba(26,23,16,0.08);
-  --shadow-md: 0 6px 24px rgba(26,23,16,0.10);
-  --shadow-lg: 0 16px 48px rgba(26,23,16,0.14);
-  --shadow-card: 0 2px 12px rgba(26,23,16,0.08), 0 0 0 1px rgba(210,195,170,0.5);
+  --shadow-xs: 0 1px 3px rgba(28,24,16,0.07);
+  --shadow-sm: 0 2px 10px rgba(28,24,16,0.09);
+  --shadow-md: 0 8px 28px rgba(28,24,16,0.12);
+  --shadow-lg: 0 18px 52px rgba(28,24,16,0.16);
+  --shadow-card: 0 3px 14px rgba(28,24,16,0.09), 0 0 0 1px rgba(200,185,160,0.45);
 
   /* ── Переходы ── */
   --t-fast:   120ms ease;
@@ -101,54 +101,54 @@
 
 /* ── Тёмная тема: явный атрибут ── */
 [data-theme='dark'] {
-  --paper:    #131210;
-  --paper-2:  #1b1915;
-  --paper-3:  #232019;
-  --paper-4:  #2d2a22;
-  --card-bg:  #1e1c17;
-  --ink:      #f0eade;
-  --ink-2:    #b4ad9e;
-  --ink-3:    #7e7868;
+  --paper:    #12100e;
+  --paper-2:  #1a1814;
+  --paper-3:  #22201a;
+  --paper-4:  #2c2922;
+  --card-bg:  #1c1a15;
+  --ink:      #f2ebe0;
+  --ink-2:    #b8b0a0;
+  --ink-3:    #7f7868;
   --ink-4:    #524e44;
-  --line:     #343028;
-  --line-2:   #2a2720;
-  --bamboo:        #7ab888;
-  --bamboo-dark:   #5a9668;
-  --bamboo-mid:    #9acca8;
-  --bamboo-soft:   rgba(122, 184, 136, 0.12);
-  --bamboo-glow:   rgba(122, 184, 136, 0.20);
-  --seal:      #d84a40;
-  --seal-mid:  #e86058;
-  --seal-soft: rgba(216, 74, 64, 0.14);
-  --gold:      #d4a84a;
-  --gold-soft: rgba(212, 168, 74, 0.14);
-  --shadow-card: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(60,56,44,0.6);
+  --line:     #322e26;
+  --line-2:   #28251f;
+  --bamboo:        #6fad7e;
+  --bamboo-dark:   #4f8a5c;
+  --bamboo-mid:    #8ec99a;
+  --bamboo-soft:   rgba(111, 173, 126, 0.13);
+  --bamboo-glow:   rgba(111, 173, 126, 0.22);
+  --seal:      #d44a42;
+  --seal-mid:  #e56a62;
+  --seal-soft: rgba(212, 74, 66, 0.15);
+  --gold:      #d6ad4a;
+  --gold-soft: rgba(214, 173, 74, 0.15);
+  --shadow-card: 0 3px 14px rgba(0,0,0,0.35), 0 0 0 1px rgba(55,50,40,0.6);
 }
 
 /* ── Тёмная тема: системные настройки ── */
 @media (prefers-color-scheme: dark) {
   :root[data-theme='auto'] {
-    --paper:    #131210;
-    --paper-2:  #1b1915;
-    --paper-3:  #232019;
-    --paper-4:  #2d2a22;
-    --card-bg:  #1e1c17;
-    --ink:      #f0eade;
-    --ink-2:    #b4ad9e;
-    --ink-3:    #7e7868;
+    --paper:    #12100e;
+    --paper-2:  #1a1814;
+    --paper-3:  #22201a;
+    --paper-4:  #2c2922;
+    --card-bg:  #1c1a15;
+    --ink:      #f2ebe0;
+    --ink-2:    #b8b0a0;
+    --ink-3:    #7f7868;
     --ink-4:    #524e44;
-    --line:     #343028;
-    --line-2:   #2a2720;
-    --bamboo:        #7ab888;
-    --bamboo-dark:   #5a9668;
-    --bamboo-mid:    #9acca8;
-    --bamboo-soft:   rgba(122, 184, 136, 0.12);
-    --bamboo-glow:   rgba(122, 184, 136, 0.20);
-    --seal:      #d84a40;
-    --seal-mid:  #e86058;
-    --seal-soft: rgba(216, 74, 64, 0.14);
-    --gold:      #d4a84a;
-    --gold-soft: rgba(212, 168, 74, 0.14);
-    --shadow-card: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(60,56,44,0.6);
+    --line:     #322e26;
+    --line-2:   #28251f;
+    --bamboo:        #6fad7e;
+    --bamboo-dark:   #4f8a5c;
+    --bamboo-mid:    #8ec99a;
+    --bamboo-soft:   rgba(111, 173, 126, 0.13);
+    --bamboo-glow:   rgba(111, 173, 126, 0.22);
+    --seal:      #d44a42;
+    --seal-mid:  #e56a62;
+    --seal-soft: rgba(212, 74, 66, 0.15);
+    --gold:      #d6ad4a;
+    --gold-soft: rgba(214, 173, 74, 0.15);
+    --shadow-card: 0 3px 14px rgba(0,0,0,0.35), 0 0 0 1px rgba(55,50,40,0.6);
   }
 }
